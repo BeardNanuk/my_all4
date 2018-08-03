@@ -7,7 +7,7 @@ cp -rf ../my_* .
 wait
 
 git add .
-git commit -m "23th commit"
+git commit -m "24444th commit"
 #git push -u github master
-
+git push origin master
 
