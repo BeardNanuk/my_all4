@@ -1,0 +1,544 @@
+#!/bin/sh
+
+#Installation
+##find a place to save the download 
+mkdir ~/packages
+cd ~/packages
+## download
+#To install Seisflows, first clone the repository:
+git clone https://github.com/rmodrak/seisflows.git
+##Then set environment variables. 
+Add the following lines to .bashrc (or modify accordingly if using a shell other than bash):
+export PATH=$PATH:/path/to/seisflows/scripts
+export PYTHONPATH=$PYTHONPATH:/path/to/seisflows
+#Do not forget change to the real path of seisflow folders thoes were pulled from git 
+#update open shell
+source ~./.bashrc
+
+## test the seisflow in the system 
+$ . seisflows/tests/run_test_system
+## Run nonlinear optimization test
+. seisflows/tests/run_test_optimize 
+# or at any location, access from the root directory 
+. ~/seisflows/tests/run_test_optimize
+
+##### a few things from Etienne that I can remember; might not be extaustic 
+# newest seiflow is still old, variables like 
+ATTENUATION_f0_REFERENCE = 5.196          # (Hz) relevant only if source is a Dirac or a Heaviside, otherwise it is f0 the dominant frequency of the source in the CMTSOLUTION file
+
+# copy the true model over  
+$ mkdir model_true
+$ cp ../specfem2d/DATA/proc000000_* ./model_true/
+
+## in /home/jiazeh/inversion_test/paths.py, change the directories that seisflow needs to the ones you want seisflow to use. 
+
+#DATA = '/scratch/gpfs/etienneb/2D_inversion_80_elem/Donnees'
+
+MODEL_INIT = '/home/jiazeh/inversion_test/model_init'
+
+MODEL_TRUE = '/home/jiazeh/inversion_test/model_true'
+
+MASK ='/home/jiazeh/inversion_test/mask'
+
+PRECOND = ''
+
+SPECFEM_DATA = '/home/jiazeh/inversion_test/specfem_data'
+
+SPECFEM_BIN = '/home/jiazeh/specfem2d/bin'
+
+## copy the mask generation file from etienne, written in fortran 
+$ scp cree_masque.f90 jiazeh@paris:~/inversion_test
+# The core part in cree_masque.f90 is in 
+do iproc=1,NPROC
+
+  write(filename,'(a,i6.6,a)') './mask/proc',iproc-1,'_x.bin'
+  open(unit=13,file=filename,status='old',form='unformatted')
+  write(filename,'(a,i6.6,a)') './mask/proc',iproc-1,'_z.bin'
+  open(unit=14,file=filename,status='old',form='unformatted')
+  write(filename,'(a,i6.6,a)') './mask/proc',iproc-1,'_vp.bin'
+  open(unit=154,file=filename,status='unknown',form='unformatted')
+# to create the masking in seisflow, by inputing the proc _x _z _vp files in the mask folder, which were genereted by specfem2d (note that vp map was used only to obtain the masking in the specfem2d-generated mesh)
+# so copy the following to /home/jiazeh/inversion_test/mask would be enough for seisflow 
+(obspy) [jiazeh@paris DATA]$ cp proc000000_x.bin /home/jiazeh/inversion_test/mask
+(obspy) [jiazeh@paris DATA]$ cp proc000000_z.bin /home/jiazeh/inversion_test/mask
+(obspy) [jiazeh@paris DATA]$ cp proc000000_vp.bin /home/jiazeh/inversion_test/mask
+
+
+################### common check list ###################################
+### system-wise 
+# load anaconda (make sure it is for python 2)
+  943  module load anaconda
+  944  module list
+## in bashrc
+module load anaconda
+#conda activate obspy
+# this is correct for cluster usage 
+source activate obspy
+
+### in specfem2d_data folder 
+SOURCE_000000...3, av_STATIONS_000000...3,STATIONS_000000...3,Par_file, interfaces
+## in model_init and model_true
+(obspy) [jiazeh@tigergpu inversion_test]$ ls model_init
+20180702_default            proc000000_Qkappa.bin  proc000000_vs.bin
+proc000000_jacobian.bin     proc000000_rho.bin     proc000000_x.bin
+proc000000_NSPEC_ibool.bin  proc000000_vp.bin      proc000000_z.bin
+## in mask 
+(obspy) [jiazeh@tigergpu inversion_test]$ ls mask/
+20180702_default  proc000000_vp.bin  proc000000_x.bin  proc000000_z.bin
+
+#### in Parfile 
+# mesh size
+# number of cores
+# time steps(not )
+# gpu mode is true or not 
+# gpu module is loaded, the heads of gpu number is included 
+# pml in gpu mode not supported yet. 
+
+#### in parameter.py
+
+ 
+
+
+#####
+
+
+
+
+
+
+
+ 
+
+
+# make a folder for mask (in ~/inversion_test/)
+$ mkdir mask
+$ mkdir model_init
+
+[jiazeh@paris specfem2d]$ cp DATA/proc000000_* ../inversion_test/model_init/
+[jiazeh@paris specfem2d]$ cd ../inversion_test/
+
+[jiazeh@paris inversion_test]$ cp model_init/proc000000_[xz].bin ./mask/
+[jiazeh@paris inversion_test]$ ifort cree_masque.f90 
+[jiazeh@paris inversion_test]$ ./a.out 
+[jiazeh@paris inversion_test]$ ls mask/
+proc000000_vp.bin  proc000000_x.bin  proc000000_z.bin
+
+## copyed many plot and print functions that etienne wrote 
+(obspy) [etienneb@tigergpu 2D_inversion_80_elem]$ scp plot* print* jiazeh@paris:~/inversion_test
+# to run these things, obspy need to be loaded 
+$ conda activate obspy
+# to use plotvp, the folder that contains mask info needs to be told as follows: 
+$ ./plotvp ./mask/
+# the mask can be seen in ~/inversion_test/vp.png
+
+## the specfem2d's parfile needs to be copyed to /home/jiazeh/inversion_test/specfem_data
+(obspy) [jiazeh@paris inversion_test]$ cp ../specfem2d/DATA/Par_file ./specfem_data/
+
+## all conversion file to solve the discrancy between new specfem2D and current seisflow 
+/home/jiazeh/seisflows/seisflows/solver
+(obspy) [jiazeh@paris solver]$ ls
+base.py   __init__.py   specfem2d_new.py   specfem2d.py        specfem3d.py
+base.pyc  __init__.pyc  specfem2d_new.pyc  specfem3d_globe.py
+# etienne has a new version 
+(obspy) [etienneb@tigergpu etienneb]$ scp seisflows/seisflows/solver/specfem2d_new.py jiazeh@paris:~
+# move this thing to the seisflow program folder 'solver'
+(obspy) [jiazeh@paris inversion_test]$ mv ../specfem2d_new.py ../seisflows//seisflows/solver/
+
+## combine the kernels from all events, similar to stacking in RTM
+make xcombine_sem
+
+## maybe changed something in the parameters.py file 
+# then combine the kernels from all events, similar to stacking in RTM
+(obspy) [jiazeh@paris inversion_test]$ vi parameters.py 
+(obspy) [jiazeh@paris inversion_test]$ cd ../specfem2d
+(obspy) [jiazeh@paris specfem2d]$ make xcombine_sem
+
+##### to run seisflow
+(obspy) [jiazeh@paris specfem2d]$ cd ../inversion_test/
+(obspy) [jiazeh@paris inversion_test]$ sfclean
+(obspy) [jiazeh@paris inversion_test]$ sfrun
+
+### editted something for adjoint source generation 
+[jiazeh@paris inversion_test]$ vi ../seisflows//seisflows/plugins/adjoint.py
+[jiazeh@paris inversion_test]$ sfclean
+
+## output the log to this file 
+[jiazeh@paris inversion_test]$ sfrun >> output.log &
+
+[jiazeh@paris inversion_test]$ cat output.optim 
+
+## output the results saved above 
+[jiazeh@paris inversion_test]$ cat output.log 
+Generating data
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+[jiazeh@paris inversion_test]$ cat output.log 
+Generating data
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+[jiazeh@paris inversion_test]$ cat output.log 
+Generating data
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+[jiazeh@paris inversion_test]$ cat output.log 
+Generating data
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+
+Starting iteration 1
+Generating synthetics
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+omputing gradient
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+Computing search direction
+Computing step length
+ trial step 1
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+ trial step 2
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+ trial step 3
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+
+Starting iteration 2
+Generating synthetics
+ task 01 of 04
+ 
+
+## plot the predicted model (needs opspy)
+(obspy) [jiazeh@paris inversion_test]$ ./printmodel.sh 0001
+# in printmodel, there is a line 
+
+## generate the plot for true model
+./plotvp ./model_true/
+
+
+## misfit checking 
+(obspy) [jiazeh@paris inversion_test]$ cat output.optim 
+      ITER     STEPLEN      MISFIT  
+==========  ==========  ==========  
+         1   0.000e+00   5.093e+10
+             7.419e-09   1.354e+11
+             7.419e-10   3.412e+10
+             2.593e-09   1.406e+10
+
+         2   0.000e+00   1.406e+10
+             1.000e+00   2.898e+09
+
+         3   0.000e+00   2.898e+09
+             1.000e+00   1.782e+09
+
+         4   0.000e+00   1.782e+09
+             1.000e+00   6.505e+08
+
+
+## maybe some setup and operations using sfsection ???? 
+(obspy) [jiazeh@paris inversion_test]$ ./sfsection scratch/
+evalfunc/ evalgrad/ optimize/ solver/   system/   
+(obspy) [jiazeh@paris inversion_test]$ ./sfsection scratch/solver/00000
+000000/ 000001/ 000002/ 000003/ 
+(obspy) [jiazeh@paris inversion_test]$ ./sfsection scratch/solver/000000/
+bin/          kernel_paths  SEM/          traces/       
+DATA/         OUTPUT_FILES/ solver.log    
+(obspy) [jiazeh@paris inversion_test]$ ./sfsection scratch/solver/000000/traces/
+adj/ obs/ syn/ 
+(obspy) [jiazeh@paris inversion_test]$ ./sfsection scratch/solver/000000/traces/obs/Up_file_single.su 
+
+
+## other python packages to make sfsection run successfully 
+mpip install --user requests lxml decorator pytz
+
+## then this will run 
+(obspy) [jiazeh@paris inversion_test]$ ./sfsection scratch/solver/000001/traces/obs/Up_file_single.su 
+
+## understand the specfem_data folder by counting the words
+
+(obspy) [jiazeh@paris inversion_test]$ wc specfem_data/*
+      32      192     1536 specfem_data/av_STATIONS_000000
+      32      192     1568 specfem_data/av_STATIONS_000001
+      32      192     1546 specfem_data/av_STATIONS_000002
+      32      192     1568 specfem_data/av_STATIONS_000003
+      32      192     1568 specfem_data/av_STATIONS_000004
+      32      192     1568 specfem_data/av_STATIONS_000005
+      32      192     1568 specfem_data/av_STATIONS_000006
+      32      192     1568 specfem_data/av_STATIONS_000007
+      32      192     1568 specfem_data/av_STATIONS_000008
+      32      192     1568 specfem_data/av_STATIONS_000009
+      32      192     1568 specfem_data/av_STATIONS_000010
+      32      192     1568 specfem_data/av_STATIONS_000011
+      17       69      339 specfem_data/interfaces.dat
+     359     2354    18664 specfem_data/Par_file
+     332     2270    17738 specfem_data/Par_file_000000
+     332     2270    17740 specfem_data/Par_file_000001
+     332     2270    17739 specfem_data/Par_file_000002
+     332     2270    17738 specfem_data/Par_file_000003
+     332     2270    17738 specfem_data/Par_file_000004
+     332     2270    17739 specfem_data/Par_file_000005
+     332     2270    17739 specfem_data/Par_file_000006
+     332     2270    17738 specfem_data/Par_file_000007
+     332     2270    17738 specfem_data/Par_file_000008
+     332     2270    17739 specfem_data/Par_file_000009
+     332     2270    17739 specfem_data/Par_file_000010
+     332     2270    17738 specfem_data/Par_file_000011
+     448     1184    10720 specfem_data/SOURCE_000000
+     448     1184    10336 specfem_data/SOURCE_000001
+     448     1216    10400 specfem_data/SOURCE_000002
+     448     1216    10368 specfem_data/SOURCE_000003
+     448     1184    10720 specfem_data/SOURCE_000004
+     448     1184    10720 specfem_data/SOURCE_000005
+     448     1184    10720 specfem_data/SOURCE_000006
+     448     1184    10720 specfem_data/SOURCE_000007
+     448     1184    10944 specfem_data/SOURCE_000008
+     448     1184    10592 specfem_data/SOURCE_000009
+     448     1216    10624 specfem_data/SOURCE_000010
+     448     1216    10624 specfem_data/SOURCE_000011
+     128      768     6218 specfem_data/STATIONS
+      32      192     1536 specfem_data/STATIONS_000000
+      32      192     1568 specfem_data/STATIONS_000001
+      32      192     1546 specfem_data/STATIONS_000002
+      32      192     1568 specfem_data/STATIONS_000003
+     128      768     6218 specfem_data/STATIONS_000004
+     128      768     6218 specfem_data/STATIONS_000005
+     128      768     6218 specfem_data/STATIONS_000006
+     128      768     6218 specfem_data/STATIONS_000007
+     128      768     6218 specfem_data/STATIONS_000008
+     128      768     6218 specfem_data/STATIONS_000009
+     128      768     6218 specfem_data/STATIONS_000010
+     128      768     6218 specfem_data/STATIONS_000011
+      32      192     1088 specfem_data/STATIONS32
+     128      768     4352 specfem_data/STATIONS_orig
+    2200    15130   720232 specfem_data/xadj_seismogram
+    2452    17350   853758 specfem_data/xcheck_quality_external_mesh
+    2492    16481   828572 specfem_data/xcombine_sem
+    2088    14796   711757 specfem_data/xconvolve_source_timefunction
+    3463    28296  1407990 specfem_data/xmeshfem2D
+    3169    22369  1079801 specfem_data/xsmooth_sem
+   15981   119992  5842147 specfem_data/xspecfem2D
+   43405   289357 11889993 total
+
+# since this time, the STATIONS contains the surrounding arrays for all of the four events, it will be copyed to the STATIONS files for all of the events
+(obspy) [jiazeh@paris inversion_test]$ cp specfem_data/STATIONS specfem_data/STATIONS_000000
+(obspy) [jiazeh@paris inversion_test]$ cp specfem_data/STATIONS specfem_data/STATIONS_000001
+(obspy) [jiazeh@paris inversion_test]$ cp specfem_data/STATIONS specfem_data/STATIONS_000002
+(obspy) [jiazeh@paris inversion_test]$ cp specfem_data/STATIONS specfem_data/STATIONS_000003
+
+##### each time rerun
+(obspy) [jiazeh@paris inversion_test]$ sfclean
+(obspy) [jiazeh@paris inversion_test]$ sfrun >> output.log &
+## output what have been done 
+(obspy) [jiazeh@paris inversion_test]$ cat output.log 
+## output parameters regarding opitimization 
+(obspy) [jiazeh@paris inversion_test]$ cat output.optim
+## display the files in output folder
+cat output/
+## display the files in output.stats/ folder
+cat output.stats/
+# display the misfit 
+cat output.stats/misfit 
+
+
+### common errors 
+
+## the blowout eror 
+/home/jiazeh/seisflows/seisflows/optimize/base.py:161: RuntimeWarning: divide by zero encountered in double_scalars
+  PAR.STEPLENMAX*norm_m/norm_p
+/home/jiazeh/seisflows/seisflows/plugins/line_search/bracket.py:31: RuntimeWarning: divide by zero encountered in double_scalars
+  alpha = gtg[-1]**-1
+/home/jiazeh/seisflows/seisflows/optimize/base.py:168: RuntimeWarning: divide by zero encountered in double_scalars
+  alpha = PAR.STEPLENINIT*norm_m/norm_p
+/home/jiazeh/seisflows/seisflows/optimize/base.py:172: RuntimeWarning: invalid value encountered in multiply
+  self.save('m_try', m + alpha*p)
+ trial step 1
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+forrtl: error (65): floating invalid
+Image              PC                Routine            Line        Source             
+xspecfem2D         000000000065A69E  for__signal_handl     Unknown  Unknown
+libpthread-2.17.s  00007F811F5C0680  Unknown               Unknown  Unknown
+xspecfem2D         00000000004D764D  Unknown               Unknown  Unknown
+xspecfem2D         0000000000560AA0  Unknown               Unknown  Unknown
+xspecfem2D         00000000005D99B3  Unknown               Unknown  Unknown
+xspecfem2D         0000000000409D5E  Unknown               Unknown  Unknown
+libc-2.17.so       00007F811F2063D5  __libc_start_main     Unknown  Unknown
+xspecfem2D         0000000000409C69  Unknown               Unknown  Unknown
+.
+.
+.
+SOLVER FAILED
+
+    Nonzero exit status returned by:   bin/xspecfem2D
+
+    Subsequent tasks may fail because expected solver output is not in place.
+    Users running on clusters without fault tolerance should consider stopping 
+    any remaining workflow tasks to avoid further loss of resources. 
+
+    To troubleshoot solver errors, navigate to ./scratch/solver to browse solver
+    output or try running solver manually in the directories set up in
+    ./scratch/solver.
+# also the obs/syn data looks exactly the same 
+
+## causes: 
+# in inversion_test/specfem2d/Par_file
+ 47 # available models
+ 48 #   default: define model using nbmodels below
+ 49 #   ascii: read model from ascii database file
+ 50 #   binary: read model from binary databse file
+ 51 #   external: define model using define_external_model subroutine
+ 52 #   legacy: read model from model_velocity.dat_input
+ 53 MODEL                           = binary
+ 54 
+ 55 # Output the model with the requested type, does not save if turn to default
+ 56 SAVE_MODEL                      = default
+ 57 
+### the above MODEL set to binary, meaning it uses the binary files in folder model_init
+### and in folder model_true 
+
+## solution to blowup error
+#rerun specfem2d twice 
+# with DATA/Par_file
+ 47 # available models
+ 48 #   default: define model using nbmodels below
+ 49 #   ascii: read model from ascii database file
+ 50 #   binary: read model from binary databse file
+ 51 #   external: define model using define_external_model subroutine
+ 52 #   legacy: read model from model_velocity.dat_input
+ 53 MODEL                           = default
+ 54 
+ 55 # Output the model with the requested type, does not save if turn to default
+ 56 SAVE_MODEL                      = binary
+### the above MODEL set to default, it will use specfem2d's internal mesher to generate 
+### meshed bin files: 
+./DATA/proc000000_jacobian.bin     ./DATA/proc000000_vp.bin  ./DATA/proc000000_z.bin
+./DATA/proc000000_NSPEC_ibool.bin  ./DATA/proc000000_vs.bin
+./DATA/proc000000_rho.bin          ./DATA/proc000000_x.bin
+### Generate these bin files twice in specfem2d, for model_init in inversion_test/ one with 
+275 # define the different regions of the model in the (nx,nz) spectral-element mesh
+276 # format of each line: nxmin nxmax nzmin nzmax material_number
+277 nbregions                       = 1
+278 1 80  1 80 1
+### for model_init in inversion_test/, the other of nbregions should be set to the number of regions you want to define 
+ons of the model in the (nx,nz) spectral-element mesh
+276 # format of each line: nxmin nxmax nzmin nzmax material_number
+277 nbregions                       = 8
+278 1 80  1 80 1
+279 32 57 26 56  2
+280 22 25 54 57  3
+281 24 26 17 23  4
+282 32 46 32 34  5
+283 11 17 57 63  5
+284 14 17 20 25  4
+285 25 27 22 27  3
+286 35 38 21 26  2
+287 17 22 30 35  4
+288 23 29 15 17  2
+289 35 37 10 13  4
+290 27 30 30 35  5
+
+### then copy these files seperately into model_inti and model_true, respectively 
+## check inversion_test/specfem2d/Parfile 
+ 53 MODEL                           = binary
+## and then in this case,  in inversion_test/specfem2d/Parfile, 
+275 # define the different regions of the model in the (nx,nz) spectral-element mesh
+276 # format of each line: nxmin nxmax nzmin nzmax material_number
+277 nbregions                       = 11
+278 1 80  1 80 1
+279 32 57 26 56  2
+280 22 25 54 57  3
+281 24 26 17 23  4
+## nbregions would not matter here. (Remember each model needs to be meshed first for seisflow
+## importing bin files generated by specfem2d is just for meshing and processor partitionning etc, so seiseisflow do not need to worry about this again)
+
+
+setup_with_binary_database = 0
+
+# available models
+#   default: define model using nbmodels below
+#   ascii: read model from ascii database file
+#   binary: read modee from binary databse file
+#   external: define m using define_external_model subroutine
+#   legacy: read model from model_velocity.dat_input
+MODEL                           = default
+
+# Output the model with the requested type, does not save if turn to default
+SAVE_MODEL                      = binary
+
+
+
+
+############### for gpu mode working for inversion 
+
+##### change an option given by etienne, in parameters.py	
+# change 
+SYSTEM='multicore'   # serial, pbs, slurm
+# to 
+SYSTEM='tiger_sm_gpu'   # serial, pbs, slurm 
+
+##### add file 'tiger_sum_gpu.py' to 
+/scratch/gpfs/jiazeh/seisflows/seisflows/system
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
