@@ -4,8 +4,8 @@ echo "open my emails in firefox"
 
 #(firefox &)
 #. /usr/bin/firefox
-firefox "https://mail.google.com/mail/u/0/?tab=wm#inbox" &
-firefox "https://mail.google.com/mail/u/1/#inbox" &
+google-chrome "https://mail.google.com/mail/u/0/?tab=wm#inbox" &
+google-chrome "https://mail.google.com/mail/u/1/#inbox" &
 firefox "https://owa.princeton.edu/owa/" &
 
 #cd /home/jiazeh/Desktop/my_files/my_bin

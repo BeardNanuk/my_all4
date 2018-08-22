@@ -285,7 +285,7 @@ $ conda activate obspy
 # close obspy
 $ conda deactivate
 
-
+##################### path, directories, folders #################
 
 
 #!/bin/sh
@@ -300,6 +300,12 @@ c='/Desktop/my_files/my_bin'
 final_dir=$ab$c
 
 cd $final_dir
+
+### bash file contains space and bracket 
+final_dir="$HOME/Dropbox\ \(Princeton\)/Sync/princeton"
+
+eval cd $final_dir
+
 
 
 # open a folder GUI from bash 
@@ -387,6 +393,13 @@ grep -n 'wo..' let_vim_do_the_typing
 grep -n ^'[cs]' let_vim_do_the_typing
 # find all lines containing all files 
 grep -nr 'mkdir' ./*
+# find all lines containing all files with exact match 
+grep -wnr 'mkdir' ./*
+ 
+
+# contains a word, but not contains another 
+(grep -nr 'constants' ./*) >> z_grep_temp.txt
+grep -v 'use constants' z_grep_temp.txt
 
 ### sed 
 ## substitute 

@@ -182,6 +182,21 @@ $ ln -s /home/jiazeh/.Xauthority .Xauthority
 # after linking, these to should appears the same! 
 
 
+########## dropbox related  ##########################
+
+https://www.dropbox.com/install
+
+64-bit:
+
+cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
+
+Next, run the Dropbox daemon from the newly created .dropbox-dist folder.
+
+~/.dropbox-dist/dropboxd
+
+
+
+
 
 
 

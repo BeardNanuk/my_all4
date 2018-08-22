@@ -176,6 +176,11 @@ save_binary_seismograms_single  = .false.         # save seismograms in single p
 save_binary_seismograms_double  = .false.        # save seismograms in double precision binary format or not (can be used jointly with both flags above to save all)
 
 
+################################### SOURCE code of specfem2d ############## 
+#
+Low-dissipation and low-dispersion Runge–Kutta (LDDRK)
+
+
 
 
 
