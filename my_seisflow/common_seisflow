@@ -144,6 +144,7 @@ base.pyc  __init__.pyc  specfem2d_new.pyc  specfem3d_globe.py
 # move this thing to the seisflow program folder 'solver'
 (obspy) [jiazeh@paris inversion_test]$ mv ../specfem2d_new.py ../seisflows//seisflows/solver/
 
+## if make -j eariler, this seems to need to run seperately 
 ## combine the kernels from all events, similar to stacking in RTM
 make xcombine_sem
 
@@ -505,6 +506,47 @@ SYSTEM='tiger_sm_gpu'   # serial, pbs, slurm
 ##### add file 'tiger_sum_gpu.py' to 
 /scratch/gpfs/jiazeh/seisflows/seisflows/system
 
+############### for s
+
+Starting iteration 1
+Generating synthetics
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+Computing gradient
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+/bin/sh: /home/jiazeh/specfem2d/bin/xcombine_sem: No such file or directory
+
+### solution 
+(obspy) [jiazeh@paris specfem2d]$ make xcombine_sem
+
+
+####### if using only one node, mpi is probably not needed, so 
+bspy) [jiazeh@tigercpu inversion_test]$ cat slurm-1238136.out 
+Generating data
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+*** An error occurred in MPI_Init
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+***    and potentially your MPI job)
+[tiger-h20c1n4:18526] Local abort before MPI_INIT completed successfully; not able to aggregate error messages, and not able to guarantee that all other processes were killed!
+[tiger-h20c1n4:18527] Local abort before MPI_INIT completed successfully; not able to aggregate error messages, and not able to guarantee that all other processes were killed!
+
+### solution 
+## compile specfem2d without mpi
 
 
 

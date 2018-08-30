@@ -31,7 +31,7 @@ module purge
 
 
 
-
+l
 # to generate a Makefile for installation later 
 # many flags will be automatically generated because when FC = ifort is seleted
 ./configure FC=ifort --with-mpi
@@ -234,3 +234,121 @@ mpirun -n $NPROC /home/jiazeh/specfem2d/bin/xspecfem2D >> solverz
 ### debugging the source time function 
 
 vi src/specfem2D/prepare_source_time_function.f90
+
+###### here is the error
+   264  Error detected, aborting MPI... proc            0
+   265  Error, program ended in exit_MPI
+
+### look at: vi /home/jiazeh/inversion_test/scratch/solver/000000/solver.log 
+   255  Parameter file successfully read
+   256 
+   257  The mesh contains         6400  elements
+   258 
+   259  Control elements have            9  nodes
+   260 
+   261  Error invalid num_sources :           1
+   262  NSOURCES :          32
+   263  Error: Total number of sources in DATA/SOURCE is different from that declared in the Par_file, please check...
+   264  Error detected, aborting MPI... proc            0
+   265  Error, program ended in exit_MPI
+   266  Error detected, aborting MPI... proc            0
+
+######################### 
+### after sfrun 
+Traceback (most recent call last):
+  File "/scratch/gpfs/jiazeh/seisflows/scripts/sfrun", line 44, in <module>
+    system.submit(workflow)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/system/serial.py", line 84, in submit
+    workflow.main()
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/workflow/inversion.py", line 120, in main
+    self.evaluate_gradient()
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/workflow/inversion.py", line 228, in evaluate_gradient
+    self.write_gradient(path=PATH.GRAD, suffix='new')
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/workflow/inversion.py", line 276, in write_gradient
+    postprocess.write_gradient(path,optimize.iter)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/postprocess/base.py", line 69, in write_gradient
+    parameters=solver.parameters)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/system/multicore.py", line 91, in run
+    func(**kwargs)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/postprocess/base.py", line 97, in process_kernels
+    raise ExceptionTraceback (most recent call last):
+  File "/scratch/gpfs/jiazeh/seisflows/scripts/sfrun", line 44, in <module>
+    system.submit(workflow)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/system/serial.py", line 84, in submit
+    workflow.main()
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/workflow/inversion.py", line 120, in main
+    self.evaluate_gradient()
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/workflow/inversion.py", line 228, in evaluate_gradient
+    self.write_gradient(path=PATH.GRAD, suffix='new')
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/workflow/inversion.py", line 276, in write_gradient
+    postprocess.write_gradient(path,optimize.iter)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/postprocess/base.py", line 69, in write_gradient
+    parameters=solver.parameters)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/system/multicore.py", line 91, in run
+    func(**kwargs)
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/postprocess/base.py", line 97, in process_kernels
+    raise Exception
+
+### in /scratch/gpfs/jiazeh/inversion_test/scratch/solver/000000/solver.log
+--------------------------------------------------------------------------
+It looks like orte_init failed for some reason; your parallel process is
+likely to abort.  There are many reasons that a parallel process can
+fail during orte_init; some of which are due to configuration or
+environment problems.  This failure appears to be an internal failure;
+here s some additional information (which may only be relevant to an
+Open MPI developer):
+
+  PMI2_Job_GetId failed failed
+  --> Returned value (null) (14) instead of ORTE_SUCCESS
+--------------------------------------------------------------------------
+
+### solution 
+according to James specfem2d needs to be compiled without mpi 
+## in specfem2d/
+make realclean 
+# run 
+ ./configure FC=ifort 
+# or  run 
+./configure FC=gfortran 
+## then run (make -j may not working) 
+make all 
+
+####################### if internal mesher does not generate 
+     639  Mesh dimensions:
+     640    Xmin,Xmax of the whole mesh =    0.0000000000000000        2.5600000000000005E-002
+     641    Zmin,Zmax of the whole mesh =    0.0000000000000000        2.5600000000000008E-002
+     642 
+     643  Assigning an external velocity and density model
+     644    model: binary
+     645    reading external files: DATA/proc*****_rho.bin, .._vp.bin, .._vs.bin
+     646  Error opening DATA/proc*****_rho.bin file.
+     647  Error detected, aborting MPI... proc            0
+     648  Error, program ended in exit_MPI
+     649  Error detected, aborting MPI... proc            0
+     650  Error, program ended in exit_MPI
+     651  Error detected, aborting MPI... proc            0
+
+### solution 
+## in DATA/Par_file	
+
+ 47 # available models
+ 48 #   default: define model using nbmodels below
+ 49 #   ascii: read model from ascii database file
+ 50 #   binary: read model from binary databse file
+ 51 #   external: define model using define_external_model subroutine
+ 52 #   legacy: read model from model_velocity.dat_input
+ 53 MODEL                           = default
+ 54 
+ 55 # Output the model with the requested type, does not save if turn to default
+ 56 SAVE_MODEL                      = binary
+
+
+####################### errors
+i 72     !if (ier /= 0) call exit_MPI(myrank, 'error allocating save model arrays')
+## after running, allocating arrays not working
+just comment this out
+
+
+
+
+
