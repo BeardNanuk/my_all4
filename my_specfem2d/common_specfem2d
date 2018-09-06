@@ -40,6 +40,7 @@ make realclean
 
 # install specfem2D in parallel 
 make -j
+make xcombine_sem
 #at this point, the specfem supposed to be installed.
 
 # To check if specfem2D exactuatable is already there in /bin

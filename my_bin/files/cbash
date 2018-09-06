@@ -1,4 +1,4 @@
-#!/bin/sh
+#/bin/sh
 
 echo "open my common_bash file"
 

@@ -549,13 +549,45 @@ Generating data
 ## compile specfem2d without mpi
 
 
+### in /scratch/gpfs/jiazeh/inversion_test/scratch/solver/000000/solver.log
+--------------------------------------------------------------------------
+It looks like orte_init failed for some reason; your parallel process is
+likely to abort.  There are many reasons that a parallel process can
+fail during orte_init; some of which are due to configuration or
+environment problems.  This failure appears to be an internal failure;
+here s some additional information (which may only be relevant to an
+Open MPI developer):
+
+  PMI2_Job_GetId failed failed
+  --> Returned value (null) (14) instead of ORTE_SUCCESS
+--------------------------------------------------------------------------
+
+### solution 
+according to James specfem2d needs to be compiled without mpi 
+## in specfem2d/
+make realclean 
+# run 
+ ./configure FC=ifort 
+# or  run 
+./configure FC=gfortran 
+## then run (make -j may not working) 
+make all 
 
 
 
 
 
+##################################### tricks ###############################
 
+############## when changing dimension and mesh of the media: 
 
+### in folder specfem2d_data
+## Par_file, interface, SOURCE files, STATION files
+## model_true
+## model_init
+## mask (just three vp x z would be enough)
+## do not forget CPU/GPU options, nt,f0,steps in Par_file and paramater files need to match 
+## boundary condition set to pml/stacy or not
 
 
 
