@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rm /scratch/gpfs/jiazeh/specfem2d/obf/input/U*.su
+
+cp ~/specfem2d/OUTPUT_FILES/U*.su /scratch/gpfs/jiazeh/specfem2d/obf/input
+
+python zobs_sig_comp
+python zobs_sig_comp_p2
+

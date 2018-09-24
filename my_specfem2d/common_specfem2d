@@ -182,6 +182,8 @@ save_binary_seismograms_double  = .false.        # save seismograms in double pr
 Low-dissipation and low-dispersion Runge–Kutta (LDDRK)
 
 
+############## where kernels are saved, 
+(obspy) jiazeh@farm:~/specfem2d/src/specfem2D$ vi save_adjoint_kernels.f90 
 
 
 
@@ -349,7 +351,30 @@ i 72     !if (ier /= 0) call exit_MPI(myrank, 'error allocating save model array
 ## after running, allocating arrays not working
 just comment this out
 
+###################### too large value
+
+2735  Creating color image of size          646  x          678  for time step          100
+2736  drawing scalar image of the forward wavefield pressure...
+2737  Color image maximum amplitude =    125276889546752.00
+2738  Color image created
+
+############### blow up 
+
+  2928  Creating color image of size          646  x          678  for time step                  90
+  2929  drawing scalar image of the forward wavefield pressure...
+  2930  Color image maximum amplitude =    2.7378654862450821E+030
+  2931  Warning: failed creating color image, maximum value of amplitude in image color is        invalid
+  2932  amplitude max =    2.7378654862450821E+030  with threshold at    1.0000000000000001       E+025
+  2933  Please check your simulation setup...
+  2934  code became unstable and blew up (image_color_data)
+  2935  Error detected, aborting MPI... proc            0
+  2936  Error, program ended in exit_MPI
+  2937  Error detected, aborting MPI... proc            0
+
+##### cause 
+DT too large - cfl failed or source input amplification factor too large
 
 
+### solution 
 
 

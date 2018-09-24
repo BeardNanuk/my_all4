@@ -22,7 +22,7 @@ from obspy.core.stream import Stream
 
 import argparse
 
-from obspy import read
+#from obspy import read
 import matplotlib.pyplot as plt
 
 from seisflows.tools.graphics import plot_section
@@ -75,7 +75,7 @@ class para_struct:
     pass
 
 sensor_array_su = para_struct('sensor_array_su')
-OUTPUT_FILES_path = "OUTPUT_FILES"
+OUTPUT_FILES_path = "obf"
 sensor_array_su.filenamelist = glob.glob(OUTPUT_FILES_path + '/' + "*file_single.su")
 
 
@@ -132,7 +132,53 @@ ax = plt.subplot(111)
 ax.imshow(normal_disp)
 ax.set_aspect('auto')
 fig.show()
-fig.savefig('OUTPUT_FILES/norm_disp', format='eps', dpi=1000)
+fig.savefig('OUTPUT_FILES/U_norm_disp', format='eps', dpi=1000)
+
+
+  #  plot_section(stream,
+  #      cmap=args.cmap,
+  #      clip=(100-args.clip),
+  #      title=args.title,
+  #      x_interval=args.x_interval,
+  #      y_interval=args.y_interval)
+
+  #  plt.show()
+
+###################
+
+  #  # default values
+  #  fsize = 6
+  #  scale_factor = 1.5
+
+  #  if ax is None:
+  #      fig, ax = plt.subplots(figsize=(fsize, scale_factor*fsize))
+
+  #  im = ax.imshow(normal_disp, aspect=scale_factor*d_aspect, clim=_cscale(data, clip=clip))
+  #  im.set_cmap(cmap)
+
+  #  # labels
+  #  ax.set_title(title)
+  #  ax.set_xlabel('Offset [km]')
+  #  ax.set_ylabel('Time [s]')
+
+  #  #set ticks
+  #  t =  
+  #  yticks, ytick_labels = get_regular_ticks(t, y_interval)
+  #  ax.set_yticks(yticks)
+  #  ax.set_yticklabels(ytick_labels)
+
+  #  offsets =_get_offsets(stream)
+  #  xticks, xtick_labels = get_regular_ticks(offsets, x_interval)
+  #  ax.set_xticks(xticks)
+  #  ax.set_xticklabels(xtick_labels)
+
+  #  return ax
+
+
+
+
+
+
 
 
 #for i in range(450):

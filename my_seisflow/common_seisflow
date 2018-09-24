@@ -573,6 +573,32 @@ make realclean
 ## then run (make -j may not working) 
 make all 
 
+################ when including vs kernels 
+t line 182 of file src/tomography/postprocess_sensitivity_kernels/combine_sem.F90 (unit = 40, file = '/home/jiazeh/inversion_test/scratch/evalgrad/kernels/000000/proc000000_vs_kernel.bin')
+Fortran runtime error: End of file
+Traceback (most recent call last):
+  File "/home/jiazeh/seisflows/scripts/sfrun", line 44, in <module>
+    system.submit(workflow)
+
+#### causes 
+## the only way specfem knows about if an element is acoustic or elastic is if vs is zero or not (and it cannot update the predetermined acoustic element's vp kernels). With this said, both model_true and model_init should have the same elastic and acoustic domain differences, so model_init needs to have intial vs values on the those elastic elements as well
+
+## solution 
+give values to vs in the model_init 
+#### there is another cause 
+in specfem_data/Par_file, you should put the following (to read model_init and model_true)
+ 47 # available models
+ 48 #   default: define model using nbmodels below
+ 49 #   ascii: read model from ascii database file
+ 50 #   binary: read model from binary databse file
+ 51 #   external: define model using define_external_model subroutine
+ 52 #   legacy: read model from model_velocity.dat_input
+ 53 MODEL                           = binary
+ 54 
+ 55 # Output the model with the requested type, does not save if turn to default
+ 56 SAVE_MODEL                      = default
+ 57 
+
 
 
 

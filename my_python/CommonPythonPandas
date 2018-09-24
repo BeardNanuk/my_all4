@@ -271,7 +271,7 @@ ax.set_ylabel(LABEL_Y,fontsize=FONTSIZE_LABEL)
 
 #ax.yaxis.get_offset_text().set_fontsize(60)
 #ax.xaxis.get_major_ticks.label.set_fontsize(60)
-ax.tick_params(direction='out', length=6, width=2, colors='r',
+ax.tick_ms(direction='out', length=6, width=2, colors='r',
                grid_color='r', grid_alpha=0.5)
 
 
@@ -1153,6 +1153,58 @@ for i, c, label in zip(target_ids, colors, iris.target_names):
 pl.legend()
 pl.show()
 
+
+### load and save data 
+## save as mat, txt, numpy 
+for f in sensor_array_su.filenamelist:
+    fhead=(f[len(INPUT_path)+1:len(INPUT_path)+3])
+    print(fhead)
+    #relativefiles = './' + OUTPUT_FILES_path + '/' + fhead
+    stream = read(f,format='SU', byteorder='<')
+    #sismo_png_fn = './' + OUTPUT_FILES_path + '/' + fhead + '_seismo.png'
+    #./savesismo f -save= sismo_png_fn -c=100 -xint=2 -yint=1000 -c=90 > /dev/null &
+    ###matfile = './' + OUTPUT_FILES_path + '/' + fhead + '.mat'
+    ###txtfile = './' + OUTPUT_FILES_path + '/' + fhead + '.txt'
+    
+        # convert stream to image array
+    data = _convert_to_array(stream)
+    adict = {}
+    adict[f[:2]] = data
+    #adict['pkt_np_array'] = data
+    adict['whatever'] = 1
+
+    ###sio.savemat(matfile,adict)
+    ###np.savetxt(txtfile, data, fmt='%20.19f')   # X is an array
+    
+    npfile = './' + OUTPUT_FILES_path + '/' + fhead 
+    
+    if fhead=='Ux':
+        print('is'+fhead)
+        Ux_data = np.asarray(data)
+        print('shape of Ux_data:', Ux_data.shape)
+        np.save(npfile,Ux_data)
+    elif fhead=='Uz':
+        print('is'+fhead)
+        Uz_data = np.asarray(data)
+        print('shape of Uz_data:', Uz_data.shape)
+        np.save(npfile,Uz_data)
+
+### copy file 
+#copyfilelist
+from shutil import copyfile
+copyfilelist = glob.glob('obf/output/' + "U*.npy")
+INPUT_path = 'obf/input/'
+for f in copyfilelist:
+    fhead=(f[len(INPUT_path)+1:len(INPUT_path)+7])
+    dst = 'obf/input/' + fhead
+    copyfile(f,dst)
+    
+### input from bash to python 
+  3 import os
+  4 print("The python script has been invoked successfully")
+  5 print(os.environ['flag_seismotype'])
+
+
 ####################################################################### general python ##### 
 
 
@@ -1275,10 +1327,27 @@ mu = 500
 x = np.arange(400, 600, 0.5)
 plt.plot(x, poisson.pmf(x, mu))
 
+### next power of 2
+import math as M
+from future.utils import native
+def next_pow_2(i):
+    """
+    Find the next power of two
+
+    >>> int(next_pow_2(5))
+    8
+    >>> int(next_pow_2(250))
+    256
+    """
+    # do not use NumPy here, math is much faster for single values
+    buf = M.ceil(M.log(i) / M.log(2))
+    return native(int(M.pow(2, buf)))
 
 
 
-
+### round - integer
+df_new_round = int(round(fs_new/nfft))
+print(df_new_round)
 
 
 

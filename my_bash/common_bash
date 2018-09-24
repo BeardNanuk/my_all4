@@ -415,7 +415,9 @@ grep -n '\([0-9]\)\([0-9]\)' let_vim_do_the_typing
 sed 's_\([0-9]\)\([0-9]\)_\2\1_g' let_vim_do_the_typing -> ztext.txt
 # delete all the numbers, starting from the second digit each line 
 sed 's/[0-9]//2g' let_vim_do_the_typing -> ztext.txt
-#
+# replace 1000.000 with 1.000000 after 'factor' then save to a new file
+sed 's_factor\ \=\ 1000\.000_factor\ \=\ 1\.000000_' SOURCE > SOURCE_try
+
 
 #search a string within some line ranges, then extract the string 
 sed -n '26,28{/NSTEP/=;p}' specfem_data/Par_file | paste - -
@@ -437,7 +439,8 @@ Nevent=$(sed -n 17,19p ./parameters.py | grep 'NSRC' | cut -d\= -f2 | sed 's/\#.
 #i greb the total iteration number in the misfit file 
 Nit=`wc -l ./output.stats/misfit | cut -f1 -d' '`
 
-
+# word account of all files in the current folder 
+wc *
 
 
 ### file creation - heads 

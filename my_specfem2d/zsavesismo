@@ -6,6 +6,11 @@
 # create on Tue Jul 17 14:57:36 UTC 2018
 # Creator: Jiaze He 
 
+# revised at Mon Sep 10 17:21:35 EDT 2018
+# revised by Jiaze He 
+# include single vp plot for individual signals. 
+
+
 # import argparse
 
 from obspy import read
@@ -20,21 +25,72 @@ import pandas as pd
 # for file finding
 import glob
 
+
+### seisflow module
+from seisflows.config import config, loadpy, tilde_expand, Dict
+from seisflows.tools import unix
+import argparse, os, sys
+
+## for travel time 
+from scipy.signal import hilbert as _analytic
+
+
+def getargs():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--workdir', nargs='?',
+        default=os.getcwd())
+
+    parser.add_argument('--parameter_file', nargs='?',
+        default='parameters.py')
+
+    parser.add_argument('--path_file', nargs='?',
+        default='paths.py')
+
+    return parser.parse_args()
+
+
+
+
+### workflow submission script
+args = getargs()
+
+# register parameters
+parameters = loadpy(args.parameter_file)
+sys.modules['seisflows_parameters'] = Dict(parameters)
+
+# register paths
+paths = tilde_expand(loadpy(args.path_file))
+sys.modules['seisflows_paths'] = Dict(paths)
+
+PAR = sys.modules['seisflows_parameters']
+
+
+
 OUTPUT_FILES_path = "OUTPUT_FILES"
 
 signal_type_list = glob.glob(OUTPUT_FILES_path + '/' + "U*.txt")
 
 
-mat_rec_plot = np.array([20, 100, 225]) 
+mat_rec_plot = np.array([180, 200, 225]) 
 num_rec = len(mat_rec_plot)
 
 time_function_type = 8
     
 if time_function_type == 8: 
-    usct_load = np.loadtxt("DATA/usct_source_funcv12")
-    t = usct_load[:,0]      
- 
+    usct_load = np.loadtxt("DATA/stf_cut_3rd_filtered_20000")
+    #usc_load = np.loadtxt("DATA/filtered_signal_no_delay")
+    t = usct_load[0:19000,0]
+    #pl.subplot(1, 1, 1)
+    #plt.plot(t, usct_load, 'o-')
+    #plt.show()
 
+
+else:
+    #total_time = PAR.DT * PAR.NT
+    t = np.arange(2.5e-8,0.000375+2e-8,2.5e-8) 
+
+time_steps_exp = 15000
 
 for f in signal_type_list:
     print(f)
@@ -47,7 +103,27 @@ for f in signal_type_list:
         data_load_U_ = np.loadtxt(f)
     elif fhead=='Ue':
         data_load_Ue_novalues = pd.read_csv(f,header=None)
-        data_load_Ue=0.05*data_load_Ue_novalues.values.transpose()  
+        # to make the experimental signals compariable to the amplitude 
+        # of specfem2d's output
+        data_load_Ue=0.0297361*data_load_Ue_novalues.values.transpose()  
+
+nd_cc = np.correlate(data_load_Ue[1:time_steps_exp,2],data_load_U_[1:time_steps_exp,2],"same")
+print(nd_cc)
+print('data_load_U_ max: %40.39f ' %(data_load_U_.max().max()))
+print('data_load_Ue max: %40.39f ' %(data_load_Ue.max().max()))
+
+print(nd_cc.argmax(axis=0))
+print('steps to apply for extra deleay reduction',nd_cc.argmax(axis=0)-time_steps_exp/2)
+
+## according to convoluion 
+def Traveltime(syn, obs, nt, dt):
+    cc = abs(np.convolve(obs, np.flipud(syn)))
+    return (np.argmax(cc)-nt+1)*dt
+
+time_diff =Traveltime(data_load_Ue[1:time_steps_exp,2], data_load_U_[1:time_steps_exp,2], time_steps_exp, PAR.DT) 
+print('difference in time in s:', time_diff)
+print('difference in timesteps :', time_diff/PAR.DT)
+
 
 
 fig = plt.figure()
@@ -60,7 +136,7 @@ for i in range(num_rec):
     ax.plot(t, data_load_Ux[:,col_num], 'b-',label='Ux')
     ax.plot(t, data_load_Uz[:,col_num], 'g-',label='Uz')
     ax.plot(t, data_load_U_[:,col_num], 'm-',label='U_')
-    ax.plot(t, data_load_Ue[:,col_num], 'r-',label='Ue')
+    ax.plot(t[0:time_steps_exp], data_load_Ue[:,col_num], 'r-',label='Ue')
     ax.hold(True)
     
     ax.set_title(titlename)

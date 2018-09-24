@@ -8,6 +8,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
+#import cPickle as pickle
 
 with open('OUTPUT_FILES/U_norm.pickle', 'rb') as pickle_file:
     figx = pickle.load(pickle_file)
