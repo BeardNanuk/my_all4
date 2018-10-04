@@ -377,4 +377,49 @@ DT too large - cfl failed or source input amplification factor too large
 
 ### solution 
 
+#################### external surface file, does not matter, but need to have a zero in it 
+
+error reading material parameters line
+
+
+## for external mesher, 
+
+the 
+
+########### in vsolver
+
+ Creating color image of size          408  x          428  for time step 
+           5
+ drawing scalar image of the forward wavefield pressure...
+ Color image maximum amplitude =    739.060546875000     
+--------------------------------------------------------------------------
+mpirun noticed that process rank 0 with PID 15854 on node tiger-h23c1n2 exited on signal 6 (Aborted).
+--------------------------------------------------------------------------
+
+########### in slurm 
+
+11   running solver...
+ 12 
+ 13 forrtl: error (65): floating invalid
+ 14 Image              PC                Routine            Line        Source
+ 15 xspecfem2D         000000000071E94D  Unknown               Unknown  Unknown
+ 16 xspecfem2D         000000000071C7E7  Unknown               Unknown  Unknown
+ 17 xspecfem2D         00000000006C7434  Unknown               Unknown  Unknown
+ 18 xspecfem2D         00000000006C7246  Unknown               Unknown  Unknown
+ 19 xspecfem2D         000000000066B596  Unknown               Unknown  Unknown
+ 20 xspecfem2D         000000000066F8E7  Unknown               Unknown  Unknown
+ 21 Unknown            00007F3E06AC8680  Unknown               Unknown  Unknown
+ 22 xspecfem2D         00000000004B3568  Unknown               Unknown  Unknown
+ 23 xspecfem2D         0000000000615A53  Unknown               Unknown  Unknown
+ 24 xspecfem2D         000000000060E27D  Unknown               Unknown  Unknown
+ 25 xspecfem2D         00000000004F4F15  Unknown               Unknown  Unknown
+ 26 xspecfem2D         00000000005E2D4B  Unknown               Unknown  Unknown
+ 27 xspecfem2D         000000000040969E  Unknown               Unknown  Unknown
+ 28 libc.so.6          00007F3E0670E3D5  Unknown               Unknown  Unknown
+ 29 xspecfem2D         00000000004095A9  Unknown               Unknown  Unknown
+ 30 running solver - done
+### causes: floating invalid is the spacing
+### solution, reduce dt 
+
+ 
 

@@ -2,5 +2,6 @@
 
 echo "open a image of forward wavefield"
 
-xdg-open /home/jiazeh/specfem2d/OUTPUT_FILES/forward_image0000100.jpg 
+#xdg-open /home/jiazeh/specfem2d/OUTPUT_FILES/forward_image0000100.jpg 
+xdg-open ./OUTPUT_FILES/forward_image0000100.jpg
 #cd /home/jiazeh/specfem2d

@@ -13,6 +13,7 @@ import textwrap
 from pptx import Presentation
 from pptx.util import Inches
 
+from seisflows.tools.graphics import plot_vector, plot_section, _cscale, get_regular_ticks
 
 from seisflows.config import config, loadpy, tilde_expand, Dict
 from seisflows.tools import unix
@@ -102,6 +103,38 @@ def add_slide_ze(img_path,filename_pptx,left_start=None,top_start=None,width=Non
 
     prs.save(filename_pptx)
 
+
+def plot_section_ze(data, y_step_star = None,y_step_end = None, ax=None, cmap='seismic', clip=100, title='', x_interval=1.0, y_interval=1.0):
+    
+    if (y_step_star == None) and (y_step_end == None): 
+        print('')
+    else:
+        data = data[y_step_star:y_step_end,:]    
+        
+    y_interval = 4
+    x_interval = 4
+    
+    nt = data.shape[0]
+    nrec = data.shape[1]
+
+    d_aspect = nrec / float(nt)
+    
+    fsize = 6 
+    scale_factor = 1.5
+    
+#    offsets = np.arange(0,nrec,1)
+    
+    
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(fsize, scale_factor*fsize))
+
+    im = ax.imshow(data, aspect=scale_factor*d_aspect, clim=_cscale(data, clip=clip))
+    im.set_cmap(cmap)
+    #cbar=plt.colorbar(fraction=0.046, pad=0.04,orientation='vertical')
+    # labels
+    ax.set_title(title)
+    ax.set_xlabel('Receiver number')
+    ax.set_ylabel('Time steps')
 
 
 
