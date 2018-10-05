@@ -2,6 +2,6 @@
 
 echo "open github webpage "
 
-firefox "https://github.com/"
+google-chrome "https://github.com/"
 
 

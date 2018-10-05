@@ -230,6 +230,15 @@ r$ chmod 700 /home/jiazeh/.ssh/
 r$ chmod 600 /home/jiazeh/.ssh/*
 ## close and reopen, should be OK
 
+######
+(obspy) jiazeh@farm:~/.ssh$ ssh -Y jiazeh@tigercpu.princeton.edu
+/home/jiazeh/.ssh/config: line 13: Bad configuration option: proxyjump
+/home/jiazeh/.ssh/config: line 16: Bad configuration option: proxyjump
+/home/jiazeh/.ssh/config: line 19: Bad configuration option: proxyjump
+/home/jiazeh/.ssh/config: line 22: Bad configuration option: proxyjump
+/home/jiazeh/.ssh/config: terminating, 4 bad configuration options
+
+
 
 ####### 2D inversion on GPU
 # sfclean can be run on one node 
