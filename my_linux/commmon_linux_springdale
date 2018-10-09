@@ -12,7 +12,8 @@ win + Tab
 # switch between tabs within a terminal, 
 Alt + 'tab number' # forexample, Alt + 2
 cirl + pageup/pagedown
-
+# close a terminal tab 
+cirl + D
 
 
 

@@ -236,6 +236,7 @@ mpirun -n $NPROC /home/jiazeh/specfem2d/bin/xspecfem2D >> solverz
 
 ### debugging the source time function 
 
+
 vi src/specfem2D/prepare_source_time_function.f90
 
 ###### here is the error
@@ -315,6 +316,15 @@ make realclean
 ./configure FC=gfortran 
 ## then run (make -j may not working) 
 make all 
+
+
+################### using cluster specfem2d on paris - failed 
+load ifort module 
+make realclean
+./configure FC=ifort
+make all 
+
+
 
 ####################### if internal mesher does not generate 
      639  Mesh dimensions:
