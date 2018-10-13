@@ -2,10 +2,12 @@
 
 # copy the important but limited number of i/o files of specfem2d to /home/jiazeh/temp
 
+
 #created on Mon Oct  8 14:06:55 UTC 2018
 #created by Jiazeh 
 
-final_dir="$HOME/Dropbox\ \(Princeton\)/Sync/princeton/Medical_FWI_research_mine/transducer_modeling/implementation_specfem/4allprop_comparison_new_line_20181008/acel"
+#!!!!!!!!!!!! be really careful about the destination 
+final_dir="$HOME/Dropbox\ \(Princeton\)/Sync/princeton/Medical_FWI_research_mine/transducer_modeling/implementation_specfem/4allprop_comparison_new_line_20181008/disp"
 
 
 mkdir bk_small
@@ -16,14 +18,15 @@ dfolder='bk_small'
 temp_full="$dfolder/DATA"
 mkdir -p $temp_full && eval cp -r DATA/Par_file DATA/SOURCE DATA/STATIONS $temp_full
 temp_full="$dfolder/OUTPUT_FILES"
-mkdir -p $temp_full && eval cp -r OUTPUT_FILES/for* OUTPUT_FILES/U*.png $temp_full
+mkdir -p $temp_full && eval cp -r OUTPUT_FILES/*.png $temp_full
+#mkdir -p $temp_full && eval cp -r OUTPUT_FILES/for* OUTPUT_FILES/U*.png $temp_full
 temp_full="$dfolder/obf/output"
 mkdir -p $temp_full && eval cp -r obf/output/* $temp_full
 
 
 #vi $final_dir/zreadme.txt && 
-echo $PWD >> $dfolder/zreadme.txt
-eval cp -fr $dfolder $final_dir 
+echo $PWD > $dfolder/zreadme.txt
+#eval cp -fr $dfolder $final_dir 
 
 #cp2temp 'DATA/Par_file'
 #cp2temp 'DATA/Par_file'
