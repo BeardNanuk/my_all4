@@ -279,6 +279,43 @@ plt.savefig('AA.S000003.png', format='png')
 plt.show()
 
 
+### subplot overlap - a few signal plots
+fig = plt.figure()
+ 
+for i in range(num_rec):
+    col_num = mat_rec_plot[i]
+    if (flag_exp_data is 1): 
+        titlename = 'add delay steps %d source: %d receiver: %d ' % (time_delay,act_to_plot,col_num)
+    else:
+        titlename = 'source: %d receiver: %d ' % (act_to_plot,col_num)
+    #fig, ax = plt.subplot(num_rec, 1, i+1)
+    ax = fig.add_subplot(num_rec, 1, i+1)
+    if flag_seismotype != 4:
+       ax.plot(t_cut[time_step_star:time_step_comp], Ux_data[time_step_star:time_step_comp,col_num], 'b-',label='Ux')
+       ax.plot(t_cut[time_step_star:time_step_comp], Uz_data[time_step_star:time_step_comp,col_num], 'g-',label='Uz')
+    ax.plot(t_cut[time_step_star:time_step_comp], Un_data[time_step_star:time_step_comp,col_num], 'm-',label='U_')
+    if (flag_exp_data is 1): 
+        ax.plot(t_cut[time_step_star-time_delay:time_step_comp-time_delay], amp_factor*Ue_data[time_step_star:time_step_comp,col_num], 'r-',label='Ue')
+    ax.hold(True)
+    fig.tight_layout()    
+    ax.set_title(titlename)
+    ax.legend()
+
+
+if flag_seismotype == 1:
+   u_receives_signals_fn = 'obf/output/disp_src%02d_delay.png' % (act_to_plot)    
+elif flag_seismotype == 2:  
+   u_receives_signals_fn = 'obf/output/vp_src%02d_delay.png' % (act_to_plot)    
+elif flag_seismotype == 3:  
+   u_receives_signals_fn = 'obf/output/ac_src%02d_delay.png' % (act_to_plot)    
+else: 
+   u_receives_signals_fn = 'obf/output/p_src%02d_delay.png' % (act_to_plot)    
+
+fig.savefig(u_receives_signals_fn,format='png', dpi=1000)
+
+
+
+
 
 ############################################################ MatPlotLib Basics #####
 

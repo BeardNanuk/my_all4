@@ -2,6 +2,10 @@
 
 ## load Ux Uy in su format
 ## projection then save as numpy array
+
+# revised on Tue Oct 16 20:14:21 UTC 2018
+# created by Jiaze He
+
 import obspy
 import numpy as np
 import pandas as pd
@@ -19,12 +23,16 @@ import argparse
 from obspy import read
 import scipy.io as sio
 from obspy.core.stream import Stream
+import os 
 
 # for file finding
 import glob
 
-
-
+flag_seismotype = int(os.environ['flag_seismotype'])
+D_T = float(os.environ['D_T'])
+NSTEP = int(os.environ['NSTEP'])
+print(type(D_T))
+#flag_seismotype = 4
 
 data_para = para_struct('data_para')
 OUTPUT_FILES_path = "obf/output"
@@ -63,22 +71,31 @@ for f in data_para.filenamelist:
         Uz_data = np.asarray(data)
         print('shape of Uz_data:', Uz_data.shape)
         #np.save(npfile,Uz_data)
+    elif fhead=='Up':
+        print('is'+fhead)
+        Up_data = np.asarray(data)
+        print('shape of Up_data:', Up_data.shape)
+        #np.save(npfile,Uz_data)
         
+if flag_seismotype != 4:
 
-### Projection to the normal vector of receiver surfaces
-# all component of all received signals
-data_big = np.stack((Ux_data,Uz_data)).transpose(1,0,2)
-print('the shape of the multi-dim array:', data_big.shape)
-
-# construct the receiver normal directions 
-RecPos_fn = 'obf/input/RecPos_fn_000000.dat'
-RecPos = pd.read_csv(RecPos_fn,header=None)
-RecPosValues=(RecPos.values/0.1).transpose()
-print('the shape of the unit normal vectors for all receivers:', RecPosValues.shape)
-
-# projection to the normal vectors for all receivers
-pd_big = RecPosValues*data_big
-Un_data = pd_big.sum(1)
+   ### Projection to the normal vector of receiver surfaces
+   # all component of all received signals
+   data_big = np.stack((Ux_data,Uz_data)).transpose(1,0,2)
+   print('the shape of the multi-dim array:', data_big.shape)
+   
+   # construct the receiver normal directions 
+   RecPos_fn = 'obf/input/RecPos_fn_000000.dat'
+   RecPos = pd.read_csv(RecPos_fn,header=None)
+   RecPosValues=(RecPos.values/0.1).transpose()
+   print('the shape of the unit normal vectors for all receivers:', RecPosValues.shape)
+   
+   # projection to the normal vectors for all receivers
+   pd_big = RecPosValues*data_big
+   Un_data = pd_big.sum(1)
+else: 
+   print('pressure')
+   
 
 
 
@@ -87,12 +104,22 @@ Un_data = pd_big.sum(1)
 ## convert txt file to numpy 
 Ue_data_pd = pd.read_csv(INPUT_path + "/Uexp.txt",header=None)
 Ue_data=np.transpose(Ue_data_pd.values)
+
 ##npfile = 'obf/output/Ue'
 ##np.save(npfile,Ue_data)
-data_para.Ux_data = Ux_data
-data_para.Uz_data = Uz_data
-data_para.Un_data = Un_data
+if flag_seismotype != 4:
+   data_para.Ux_data = Ux_data
+   data_para.Uz_data = Uz_data
+   data_para.Un_data = Un_data
+else: 
+   data_para.Up_data = Up_data
+
+
 data_para.Ue_data = Ue_data
+
+t_cut = np.arange(D_T,NSTEP*D_T,D_T)
+data_para.t_cut=t_cut
+
 #Uefile = INPUT_path + 'Ue'
 import pickle
 pickle.dump(data_para,open('obf/input/data_para.pickle','wb'))

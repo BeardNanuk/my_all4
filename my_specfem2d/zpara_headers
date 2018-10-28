@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# headers for files saving 
+
+# revised on Tue Oct 16 20:14:21 UTC 2018
+# created by Jiaze He
+
+
+
 f0=$(sed -n 1,15p DATA/SOURCE | grep 'f0' | cut -d\= -f2 | tr -d '[:space:]')
 
 intf0=${f0%.*}
@@ -11,13 +18,5 @@ echo 'nx ='$nx
 
 D_T=`grep ^DT DATA/Par_file | cut -d = -f 2 | cut -d \# -f 1 | tr -d ' '| sed 's/-/\_/g'`
 echo 'D_T ='$D_T
-
-NSTEP=$(sed -n 26,28p DATA/Par_file | grep 'NSTEP' | cut -d\= -f2 | tr -d '[:space:]')
-echo 'NSTEP ='$NSTEP
-
-
-
-
-
 
 

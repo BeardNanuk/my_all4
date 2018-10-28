@@ -1,5 +1,11 @@
 #!/bin/bash
 
+## bk to the $HOME/data_bk/specfem2d_data on this machine  
+
+# revised on Tue Oct 16 20:14:21 UTC 2018
+# created by Jiaze He
+
+
 #f0=$(sed -n 1,15p DATA/SOURCE | grep 'f0' | cut -d\= -f2 | tr -d '[:space:]')
 #
 #intf0=${f0%.*}

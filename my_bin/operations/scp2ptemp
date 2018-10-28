@@ -2,8 +2,15 @@
 
 echo "copy all files in current folder to jiazeh@paris:/home/jiazeh/temp"
 
+## $1 = file name or ./*
 #firefox "https://www.google.com/"
 
 #cd /home/jiazeh/Desktop/my_files/my_bin
 
-scp -r ./* jiazeh@paris:/home/jiazeh/temp
+#final_dir="$HOME/temp"
+
+#eval cp -r ./* $final_dir
+#eval scp -r $1 $final_dir
+
+eval scp -r $1 jiazeh@paris:/home/jiazeh/temp
+#scp -r ./* jiazeh@paris:/home/jiazeh/temp

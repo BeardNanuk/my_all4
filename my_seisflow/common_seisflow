@@ -159,6 +159,11 @@ make xcombine_sem
 (obspy) [jiazeh@paris inversion_test]$ sfclean
 (obspy) [jiazeh@paris inversion_test]$ sfrun
 
+#### on cluster, 
+SOLVER='specfem2d_new'      # specfem2d, specfem3d
+SYSTEM='tiger_sm_gpu'   # serial, pbs, slurm - this create slurm jobs for you, so you do not
+# need to run sbatch - just $ sfclean;sfrun
+
 ### editted something for adjoint source generation 
 [jiazeh@paris inversion_test]$ vi ../seisflows//seisflows/plugins/adjoint.py
 [jiazeh@paris inversion_test]$ sfclean
@@ -600,6 +605,86 @@ in specfem_data/Par_file, you should put the following (to read model_init and m
  57 
 
 
+############ Qkappa.bin missing    
+OSError: [Errno 2] No such file or directory: '/home/jiazeh/inversion_test/model_init/proc000000_Qkappa.bin'
+### solution 
+copy vp.bin to Qkappa.bin 
+
+########### Paramaters 
+  File "/home/jiazeh/seisflows/seisflows/config.py", line 95, in __getattr__
+    return self.__dict__[key]
+KeyError: 'ATTENUATION'
+
+### solution - add line 13  
+ 10 MISFIT='Waveform'
+ 11 MATERIALS='Acoustic'
+ 12 DENSITY='Constant'
+ 13 ATTENUATION='no'
+
+########### Permission denied
+### solution 
+$ chmod u+x /home/jiazeh/seisflows/scripts/sfrun
+
+########### vp_kernel 
+At line 182 of file src/tomography/postprocess_sensitivity_kernels/combine_sem.F90 (unit = 40, file = '/home/jiazeh/inversion_test/scratch/evalgrad/kernels/000000/proc000000_vp_kernel.bin')
+Fortran runtime error: End of file
+
+### solution - check renaming kernels because vp kernels are broken 
+(obspy) jiazeh@farm:~/inversion_test/scratch/evalgrad/kernels$ wc 000000/*
+   2089   11743  640008 000000/proc000000_alpha_kernel.bin
+   2120   11981  640008 000000/proc000000_bulk_beta_kernel.bin
+   2071   11902  640008 000000/proc000000_bulk_c_kernel.bin
+   2135   11984  640008 000000/proc000000_kappa_kernel.bin
+   2101   11873  640008 000000/proc000000_mu_kernel.bin
+   1944   11812  640008 000000/proc000000_rho_kernel.bin
+   2101   12587  640008 000000/proc000000_rhop_kernel.bin
+      0       0       0 000000/proc000000_vp_kernel.bin
+   2195   12117  640008 000000/proc000000_vs_kernel.bin
+  16756   95999 5120064 total
+### then in , something might need renaming 
+(obspy) jiazeh@farm:~/seisflows/seisflows/solver$ vi specfem2d_new.py
+195     def rename_kernels(self):
+196         """ Works around conflicting kernel filename conventions
+197         """
+198         files = []
+199         files += glob('*proc??????_alpha_acoustic_kernel.bin')
+200         unix.rename('alpha_acoustic', 'vp', files)
+201         files = []
+202         files += glob('*proc??????_alpha[hv]_kernel.bin')
+203         files += glob('*proc??????_reg1_alpha_kernel.bin')
+204         files += glob('*proc??????_reg1_alpha[hv]_kernel.bin')
+205         unix.rename('alpha', 'vp', files)
+206         files += glob('*proc??????_c_acoustic_kernel.bin')
+207         unix.rename('c_acoustic', 'vp', files)
+208      #   unix.rename('c_acoustic', 'Qkappa', files)
+209         files = []
+210         files += glob('*proc??????_rhop_acoustic_kernel.bin')
+211         unix.rename('rhop_acoustic', 'rho', files)
+212 
+213         files = []
+214         files += glob('*proc??????_beta_kernel.bin')
+215         files += glob('*proc??????_beta[hv]_kernel.bin')
+216         files += glob('*proc??????_reg1_beta_kernel.bin')
+217         files += glob('*proc??????_reg1_beta[hv]_kernel.bin')
+
+###### 'msg' not define
+  File "/scratch/gpfs/jiazeh/seisflows/seisflows/tools/seismic.py", line 26, in call_solver
+    print msg.SolverError % (mpiexec +' '+ executable)
+NameError: global name 'msg' is not defined
+### solution - add module 'sys' in 
+ 5 import sys
+vi /home/jiazeh/seisflows/seisflows/tools/seismic.py
+
+###### when line search failed. 
+
+### try flippd the sign in 
+vi /home/jiazeh/seisflows/seisflows/plugins/adjoint.py
+ 17 def Waveform(syn, obs, nt, dt):
+ 18     # waveform difference
+ 19     # (Tromp et al 2005, eq 9)
+ 20     wadj = -(syn - obs) # try to make the sign different here!!!! 
+ 21     return wadj
+### better_pressure and a few other options might lead to the failure that can be fixed by flipping the sign
 
 
 
@@ -614,6 +699,64 @@ in specfem_data/Par_file, you should put the following (to read model_init and m
 ## mask (just three vp x z would be enough)
 ## do not forget CPU/GPU options, nt,f0,steps in Par_file and paramater files need to match 
 ## boundary condition set to pml/stacy or not
+
+
+### check if specfem code has been changed. 
+### check output.optim is decreasing 
+(obspy) [jiazeh@paris inversion_test]$ cat output.optim 
+      ITER     STEPLEN      MISFIT  
+==========  ==========  ==========  
+         1   0.000e+00   6.056e+02
+### on cluster, check 
+(obspy) [jiazeh@tigergpu inversion_test]$ cat output.log 
+Generating data
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+WARNING: dt != PAR.DT
+WARNING: dt != PAR.DT
+
+
+Starting iteration 1
+Generating synthetics
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+Computing gradient
+ task 01 of 04
+ task 02 of 04
+ task 03 of 04
+ task 04 of 04
+
+### check mesh.log
+(obspy) [jiazeh@paris 000001]$ pwd
+/home/jiazeh/inversion_test/scratch/solver/000001
+(obspy) [jiazeh@paris 000001]$ cat mesh.log 
+### check solver.log
+(obspy) [jiazeh@paris 000001]$ pwd
+/home/jiazeh/inversion_test/scratch/solver/000001
+(obspy) [jiazeh@paris 000001]$ cat solver.log 
+### run this to generate images
+(obspy) [jiazeh@paris inversion_test]$ . z2ndhalf
+## use ./viewvp	to plot output/vp0000.png  
+## plot the seismogram 
+ (obspy) [jiazeh@paris inversion_test]$ ./savesismo /home/jiazeh/inversion_test/scratch/solver/000001/traces/adj/Up_file_single.su.adj
+
+##### when inverted models are blurry .... 
+
+ 1137  vi savesismo 
+ 1138  vi zbash_try 
+ 1139  vi zplotbin
+in zplotbin 
+## turn of the resampling 
+ 90         #w_undersamp = w[::25]
+ 91         #x_undersamp = x[::25]
+ 92         #z_undersamp = z[::25]
+
+
 
 
 

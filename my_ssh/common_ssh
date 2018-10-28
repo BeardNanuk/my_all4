@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# my common ssh command line summary 
+# my common ssh command line summary/ only for specfem2d on cluster, not seisflows 
 
 ## login to cpu node  
 (obspy) [jiazeh@paris ~]$ ssh -Y tigercpu
@@ -237,6 +237,10 @@ r$ chmod 600 /home/jiazeh/.ssh/*
 /home/jiazeh/.ssh/config: line 19: Bad configuration option: proxyjump
 /home/jiazeh/.ssh/config: line 22: Bad configuration option: proxyjump
 /home/jiazeh/.ssh/config: terminating, 4 bad configuration options
+
+####### no due
+
+
 
 
 

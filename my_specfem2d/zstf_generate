@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-# from matlab txt filter to source file for specfem2d (also txt)
+# python version of - from matlab txt filter to source file for specfem2d (also txt)
+
+# revised on Tue Oct 16 20:14:21 UTC 2018
+# created by Jiaze He
+
 
 # official library loading
 import scipy.io as sio

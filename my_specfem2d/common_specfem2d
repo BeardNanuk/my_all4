@@ -158,6 +158,38 @@ subsamp_seismos                 = 1
 # so far, this option can only be used if all the receivers are in acoustic elements
 USE_TRICK_FOR_BETTER_PRESSURE   = .true.
 #!!!! this is only work if seismotype is 4!!!!
+(obspy) jiazeh@farm:~/specfem2d/src/specfem2D$ vi compute_pressure.f90 
+547   else if (ispec_is_acoustic(ispec)) then
+548     ! acoustic element
+549 
+550     if (USE_TRICK_FOR_BETTER_PRESSURE) then
+551       ! use a trick to increase accuracy of pressure seismograms in fluid (a    coustic) elements:
+552       ! use the second derivative of the source for the source time function     instead of the source itself,
+553       ! and then record -potential_acoustic() as pressure seismograms instea    d of -potential_dot_dot_acoustic();
+554       ! this is mathematically equivalent, but numerically significantly mor    e accurate because in the explicit
+555       ! Newmark time scheme acceleration is accurate at zeroth order while d    isplacement is accurate at second order,
+556       ! thus in fluid elements potential_dot_dot_acoustic() is accurate at z    eroth order while potential_acoustic()
+557       ! is accurate at second order and thus contains significantly less num    erical noise.
+558       ! compute pressure on the fluid/porous medium edge
+559       do j = 1,NGLLZ
+560         do i = 1,NGLLX
+561           iglob = ibool(i,j,ispec)
+562           ! store pressure
+563           pressure_element(i,j) = - potential_acoustic(iglob)
+564         enddo
+565       enddo
+566     else
+567       do j = 1,NGLLZ
+568         do i = 1,NGLLX
+569           iglob = ibool(i,j,ispec)
+570           ! store pressure
+571           pressure_element(i,j) = - potential_dot_dot_acoustic(iglob)
+572         enddo
+573       enddo
+574     endif
+575   endif ! end of test if acoustic or elastic element
+
+
 
 ########## number of medium to include in Par_file
 277:nbregions                       = 1 
