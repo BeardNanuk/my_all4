@@ -476,6 +476,13 @@ with open(r'/home/j2/Desktop/PythonTry/DataScience-Python3/ml-100k/u.item','r',e
 voting_data = pd.read_csv('house-votes-84.data.txt', na_values=['?'], 
                           names = feature_names)
 
+### read dat / read txt 
+
+RecPos_fn = 'DATA/RecPos_fn_000000.dat'
+RecPos = pd.read_csv(RecPos_fn,header=None)
+RecPosValues=(RecPos.values/0.1).transpose()
+print(RecPosValues.shape)
+
 
 
 #### with seperation 
@@ -1225,6 +1232,10 @@ for f in sensor_array_su.filenamelist:
         Uz_data = np.asarray(data)
         print('shape of Uz_data:', Uz_data.shape)
         np.save(npfile,Uz_data)
+
+### if multiple not equal to 
+if flag_seismotype not in (4,6):
+
 
 ### copy file 
 #copyfilelist
