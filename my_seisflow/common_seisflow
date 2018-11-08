@@ -686,7 +686,9 @@ vi /home/jiazeh/seisflows/seisflows/plugins/adjoint.py
  21     return wadj
 ### better_pressure and a few other options might lead to the failure that can be fixed by flipping the sign
 
-
+##### when line search failed 2 - many trials with smaller and smaller step lengths, i
+### see if source and receiver numbers are correct
+ 
 
 ##################################### tricks ###############################
 
@@ -757,6 +759,115 @@ in zplotbin
  92         #z_undersamp = z[::25]
 
 
+################ for elastic inversions ######################33 
+
+### for parameters.py
+ 10 MATERIALS='Elastic'
+ 24 CHANNELS='xz'            # data channels
+
+### for model_init folder 
+make sure vp/vs has correct maps
+proc00000*_vs.bin needs to have non-zero values for all elements 
+
+### for model_true folder 
+make sure vp/vs has correct maps
+
+### for mask folder 
+vp/vs can use the same map 
+
+### for specfem2d_data 
+No changes over acoustic cases 
+
+### for kernel renaming /home/jiazeh/seisflows/seisflows/solver/specfem2d_new.py 
+## it suppose to be the following ways (but I did not really change them):
+195     def rename_kernels(self):
+196         """ Works around conflicting kernel filename conventions
+197         """
+198         files = []
+199         files += glob('*proc??????_alpha_acoustic_kernel.bin')
+200         unix.rename('alpha_acoustic', 'vp', files)
+201         files = []
+202         files += glob('*proc??????_alpha_kernel.bin')
+203         #files += glob('*proc??????_reg1_alpha_kernel.bin')
+204         #files += glob('*proc??????_reg1_alpha[hv]_kernel.bin')
+205         unix.rename('alpha', 'vp', files)
+206         files += glob('*proc??????_c_acoustic_kernel.bin')
+207         unix.rename('c_acoustic', 'vp', files)
+208      #   unix.rename('c_acoustic', 'Qkappa', files)
+209         files = []
+210         files += glob('*proc??????_rhop_acoustic_kernel.bin')
+211         unix.rename('rhop_acoustic', 'rho', files)
+212 
+213         files = []
+214         files += glob('*proc??????_beta_kernel.bin')
+215         #files += glob('*proc??????_beta[hv]_kernel.bin')
+216         #files += glob('*proc??????_reg1_beta_kernel.bin')
+217         #files += glob('*proc??????_reg1_beta[hv]_kernel.bin')
+218         unix.rename('beta', 'vs', files)
+
+## kernal calculations 
+(obspy) jiazeh@farm:~/specfem2d/src/specfem2D$ vi compute_kernels.f90
+ 34   subroutine compute_kernels()
+ 35 
+ 36 ! computes adjoint sensitivity kernel contributions
+ 37 !
+ 38 ! see e.g. Tromp et al. (2005) for elastic calculation
+ 39 ! and Morency et al. (2009) for poroelastic calculation
+ 40 
+ 41   use constants, only: APPROXIMATE_HESS_KL
+ 42 
+ 43   use specfem_par, only: any_acoustic,any_elastic,any_poroelastic
+ 44 
+ 45   implicit none
+ 46 
+ 47   ! acoustic simulations
+ 48   if (any_acoustic) then
+ 49     call compute_kernels_ac() ! in the same program 
+ 50   endif
+ 51 
+ 52   ! elastic simulations
+ 53   if (any_elastic) then
+ 54     call compute_kernels_el()
+ 55   endif
+ 56 
+ 57   ! poro-elastic simulations
+ 58   if (any_poroelastic) then
+ 59     call compute_kernels_po()
+ 60   endif
+ 61 
+ 62   ! computes an approximative Hessian for preconditioning kernels
+ 63   if (APPROXIMATE_HESS_KL) then
+ 64     call compute_kernels_Hessian()
+ 65   endif
+ 66 
+ 67   end subroutine compute_kernels
+
+# 
+
+ 
+## kernel saving:  
+(obspy) jiazeh@farm:~/specfem2d/src/specfem2D$ vi prepare_timerun.F90
+ 781   subroutine prepare_timerun_kernels()
+ 806   ! Allocates sensitivity kernel arrays
+ 807   ! elastic domains
+ 808   if (any_elastic) then
+ 809 
+ 810     if (save_ASCII_kernels) then
+ 811       ! ascii format
+ 812       if (count(ispec_is_anisotropic(:) .eqv. .true.) >= 1) then ! anisotropic
+ 813         write(outputname,'(a,i6.6,a)') 'proc',myrank,'_rho_cijkl_kernel.dat'
+ 814         open(unit = 97, file=trim(OUTPUT_FILES)//outputname,status='unknown',iostat=ier)
+ 815         if (ier /= 0) call stop_the_code('Error writing kernel file to disk')
+ 816       else
+ 817         write(outputname,'(a,i6.6,a)') 'proc',myrank,'_rho_kappa_mu_kernel.dat'
+ 818         open(unit = 97, file = trim(OUTPUT_FILES)//outputname,status='unknown',iostat=ier)
+ 819         if (ier /= 0) call stop_the_code('Error writing kernel file to disk')
+ 820 
+ 821         write(outputname,'(a,i6.6,a)') 'proc',myrank,'_rhop_alpha_beta_kernel.dat'
+ 822         open(unit = 98, file = trim(OUTPUT_FILES)//outputname,status='unknown',iostat=ier)
+ 823         if (ier /= 0) call stop_the_code('Error writing kernel file to disk')
+ 824       endif
+ 825     else
 
 
 
@@ -764,13 +875,22 @@ in zplotbin
 
 
 
+############## experimental data  #################### 
+
+### for real data / copyed obs data, seisflows needs to change:
+#/home/jiazeh/seisflows/seisflows/solver/specfem2d_new.py
+# the following line needs to uncommented so xmeshfem2D can be called again. 
+ 96         call_solver(system.mpiexec(), 'bin/xmeshfem2D',output='mesh.log')
 
 
+copy synthetic/experimental data for seisflows to run inverion
+in path.py, give DATA = '', comment out MODEL_TRUE
 
+## Etienne says you can generate the data through a forward run this seisflows
 
+The way is to replace "MODEL_TRUE" with "MODEL", without "DATA="
 
-
-
+### then make your own script to copy the files over, under the path of "DATA"
 
 
  

@@ -530,3 +530,9 @@ set(gca,'YTickLabel',y_label,'FontSize',FONTSIZE_TICK);
 
 
 generate Datastring in matlab for logging
+
+############ Signal processing ##############
+### Detrend
+[data2_d,Tr] = detrend(data2);
+
+

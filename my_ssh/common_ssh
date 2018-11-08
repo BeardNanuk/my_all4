@@ -239,7 +239,122 @@ r$ chmod 600 /home/jiazeh/.ssh/*
 /home/jiazeh/.ssh/config: terminating, 4 bad configuration options
 
 ####### no due
+1. Open up a new terminal window.
 
+2. Type 'mkdir ~/.ssh/sockets' and 'touch ~/.ssh/config'
+
+3. Copy and paste the following lines into '~/.ssh/config'
+
+4. chmod 600 ~/.ssh/config
+
+Host tigressgateway.princeton.edu
+    ControlMaster auto
+    ControlPersist yes
+    ControlPath ~/.ssh/sockets/%p-tigressgateway.princeton.edu-%r
+
+Host tigressgateway
+    HostName tigressgateway.princeton.edu
+    ControlMaster auto
+    ControlPersist yes
+    ControlPath ~/.ssh/sockets/%p-tigressgateway.princeton.edu-%r
+
+
+Host tigercpu.princeton.edu
+        ProxyJump jiazeh@tigressgateway.princeton.edu
+
+Host tigercpu
+        ProxyJump jiazeh@tigressgateway.princeton.edu
+
+
+Host tigergpu.princeton.edu
+        ProxyJump jiazeh@tigressgateway.princeton.edu
+
+Host tigergpu
+        ProxyJump jiazeh@tigressgateway.princeton.edu
+
+Host paris.princeton.edu
+        ProxyJump jiazeh@tigressgateway.princeton.edu
+
+Host paris
+        ProxyJump jiazeh@tigressgateway.princeton.edu
+
+
+###3
+Host tigercpu
+      HostName tigercpu.princeton.edu
+      ControlMaster auto
+      ControlPersist yes
+      ControlPath ~/.ssh/sockets/%p-tigercpu.princeton.edu-%r
+
+ Host tigercpu.princeton.edu
+      ControlMaster auto
+      ControlPersist yes
+      ControlPath ~/.ssh/sockets/%p-tigercpu.princeton.edu-%r
+
+
+Note: This example is for using tigercpu, but the exact same instructions can
+be used for other hosts (e.g. tigergpu) by using this template and adding more
+lines to '~/.ssh/config'.
+
+These lines will make sure that an ssh session is running in the background
+which means that you only have to use Duo authentication once when logging on
+to tigercpu.
+
+If you want to kill an existing ssh session use the command:
+
+ssh -O exit <YOUR_USERNAME>@tigercpu.princeton.edu
+
+Since this will kill the ssh session, you would have to use Duo next time you ssh
+to tigercpu.
+
+Let me know if you have any questions or if this is not working for you.
+
+
+#### how to use jupyter notebook on a remote machine 
+## the solution was provided by Uno on https://oncomputingwell.princeton.edu/2018/05/jupyter-on-the-cluster/#more-159
+# Step 1: open a ubuntu machine window, ssh to the remote machine: 
+jiazeh@p50:~$ . sshp
+Warning: No xauth data; using fake authentication data for X11 forwarding.
+Last login: Tue Nov  6 15:31:30 2018 from tigressgateway1.princeton.edu
+(obspy) [jiazeh@paris ~]$ 
+# Step 2: open a jupyter notebook session on the remote machine 
+(obspy) [jiazeh@paris ~]$ . playpy
+switch to the path and folder to python2  playground under venv environment
+open jupyter notebook
+[I 15:35:35.573 NotebookApp] The port 8888 is already in use, trying another port.
+[I 15:35:35.574 NotebookApp] The port 8889 is already in use, trying another port.
+[I 15:35:35.574 NotebookApp] The port 8890 is already in use, trying another port.
+[I 15:35:35.574 NotebookApp] The port 8891 is already in use, trying another port.
+[I 15:35:35.574 NotebookApp] The port 8892 is already in use, trying another port.
+[I 15:35:35.584 NotebookApp] Serving notebooks from local directory: /home/jiazeh/Desktop/my_files/py2project/pythonvenv_playground
+[I 15:35:35.584 NotebookApp] 0 active kernels
+[I 15:35:35.584 NotebookApp] The Jupyter Notebook is running at:
+[I 15:35:35.584 NotebookApp] http://localhost:8955/?token=3dedf0bedbafb69601ab843080e2a694e11bc89c39385105
+[I 15:35:35.584 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 15:35:35.585 NotebookApp]
+
+    Copy/paste this URL into your browser when you connect for the first time,
+    to login with a token:
+        http://localhost:8955/?token=3dedf0bedbafb69601ab843080e2a694e11bc89c39385105&token=3dedf0bedbafb69601ab843080e2a694e11bc89c39385105
+START /usr/bin/google-chrome-stable "http://localhost:8955/tree?token=42311562351bcc0b4e9a79d617048df99aa3b0529fed867f"
+[1:1:1106/153537.309814:ERROR:chrome_content_client.cc(363)] Failed to locate and load the component updated flash plugin.
+
+(process:9464): Gtk-WARNING **: Locale not supported by C library.
+        Using the fallback 'C' locale.
+Fontconfig warning: "/etc/fonts/fonts.conf", line 86: unknown element "blank"
+[I 15:35:39.707 NotebookApp] Accepting one-time-token-authenticated connection from ::1
+Created new window in existing browser session.
+# Step 3 run the following command on a separate terminal of your local machine: 
+# ssh -N -f -L localhost:8889:localhost:8889 <yourusername>@tigercpu.princeton.edu
+# replace '8889' with the local host of the current jupyter notebook session: 
+jiazeh@p50:~$ ssh -N -f -L localhost:8955:localhost:8955 jiazeh@paris.princeton.edu
+  
+# Step 4, copy the above link directly to your web browser: 
+# 332 [I 15:35:35.584 NotebookApp] http://localhost:8955/?token=3dedf0bedbafb69601ab843080e2a694e11bc89cq39385105
+http://localhost:8955/?token=3dedf0bedbafb69601ab843080e2a694e11bc89c39385105 --> google chrome
+# enjoy jp!! 
+
+ 
 
 
 

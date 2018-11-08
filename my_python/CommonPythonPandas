@@ -313,7 +313,20 @@ else:
 
 fig.savefig(u_receives_signals_fn,format='png', dpi=1000)
 
+###### jupyter notebook, output figure not complete: 
+bbox_inches='tight'
+ax4.plot(xf_Newobs[freq_step_starNew:freq_step_endNew]/1000,np.abs(yf_traceNew_detrend_filteredobs[freq_step_starNew:freq_step_endNew]),'-b')
+ax4.set_title('observed w resampling detrend filtered - zoom-in ' + str(obs_name) + ' trace  ' + str(trace_num) + '- absolute_value')
+ax4.set_xlabel('frequency (kHz)')
 
+
+plt.tight_layout(rect=[0, 0, 1.5, 2])
+u_receives_signals_fn = 'obf/output/csic/src01_rec%02d_spectrum.png' % (trace_num)
+plt.savefig(u_receives_signals_fn,format='png', dpi=200, bbox_inches='tight')
+fig.show()
+
+%reset -f 
+%run -i /home/j2/Desktop/PythonTry/MLshm/python_functions/poly_formal_import
 
 
 
@@ -1236,6 +1249,39 @@ for f in sensor_array_su.filenamelist:
 ### if multiple not equal to 
 if flag_seismotype not in (4,6):
 
+### load mat data over -v7.3
+with h5py.File('obf/lpara.mat', 'r') as file:
+   a = list(file['para']) # matrix filename is para 
+
+### load mat data over -v7.3 
+## save a struct file in matlab to .mat file 
+para2.aa = 1;
+para2.bb = 2;
+para2.cc = 3;
+para2.dd = 4;
+
+save('para2.mat','para2','-v7.3')
+## in jupyter notebook 
+import h5py
+### load mat data over -v7.3
+with h5py.File('obf/input/para2.mat', 'r') as file:
+    mystation_para = list(file['para2']) # matrix filename is para 
+mystation_para
+
+
+
+
+### load mat data - a regular way 
+from scipy.io import loadmat
+matfile2=loadmat('obf/input/Fan01_SRC08_mat.mat')
+npfrom_matfile2 = matfile2['fan_beam_scan_full']
+type(npfrom_matfile2)
+
+
+
+
+
+
 
 ### copy file 
 #copyfilelist
@@ -1260,7 +1306,13 @@ for f in copyfilelist:
 
 ##### &&& jupyter notebook #######################################################################
 
+### call python function in jupyter notebook
+%reset -f 
+%run -i /home/j2/Desktop/PythonTry/MLshm/python_functions/poly_formal_import
 
+
+### not output for a cell
+%%capture
 
 #######################################################################jupyter notebook #####
 
@@ -1414,4 +1466,5 @@ pd.Period('3/5/2016')
 d1 = ['2 June 2013', 'Aug 29, 2014', '2015-06-26', '7/12/16']
 ts3 = pd.DataFrame(np.random.randint(10, 100, (4,2)), index=d1, columns=list('ab'))
 ts3.index = pd.to_datetime(ts3.index)
+
 

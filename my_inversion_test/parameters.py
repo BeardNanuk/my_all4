@@ -4,12 +4,12 @@ SYSTEM='multicore'   # serial, pbs, slurm
 OPTIMIZE='LBFGS'         # base, newton
 PREPROCESS='base'       # base
 POSTPROCESS='base'      # base
-GPU_MODE = False
 #SCHEME='NLCG'
 
 MISFIT='Waveform'
-MATERIALS='Acoustic'
+MATERIALS='Elastic'
 DENSITY='Constant'
+ATTENUATION='no'	
 
 # WORKFLOW
 BEGIN=1                # first iteration
@@ -21,16 +21,18 @@ SAVEGRADIENT=1        # save gradient how often
 
 # PREPROCESSING
 FORMAT='su'   # data file format
-CHANNELS='p'            # data channels
+CHANNELS='x'            # data channels
 NORMALIZE=0             # normalize
-BANDPASS=0              # bandpass
-MUTE=0                  # mute direct arrival
-FREQLO=0.               # low frequency corner
-FREQHI=0.               # high frequency corner
+#MUTE=0                  # mute direct arrival
+
+FILTER='Bandpass'
+FREQMIN=10000
+FREQMAX=2500000
+
 
 MUTECONST=0.            # mute constant
 MUTESLOPE=0.            # mute slope
-WITH_MPI= True
+#WITH_MPI= True
 
 # POSTPROCESSING
 SMOOTH=0
@@ -45,12 +47,14 @@ STEPTHRESH=0.1          # step length safeguard
 STEPINIT=0.05
 
 
-NT=2100         # number of time steps
-DT=0.00000002         # time step
+NT=4200         # number of time steps
+DT=0.00000001         # time step
 F0=1000000
 
 # SYSTEM
 NTASK=4               # must satisfy 1 <= NTASK <= NSRC
 NPROC=1                 # processors per task
+#NTASKMAX=4
 NPROCMAX=4
-WALLTIME=1000000# walltime
+#NGPU=4
+WALLTIME=1000# walltime
