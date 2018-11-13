@@ -405,4 +405,6 @@ writing boundary files...complete!
  number of side sets written: 3
 --------------------------------
 
+## if added ~/lsoft/MeshAssist/bin/ to PATH, call exodus2specfem2d directly would be fine
+$ 
 

@@ -5,8 +5,11 @@
 # created on Thu Nov  1 21:09:39 UTC 2018
 # created by Jiaze He
 
+# revised on Fri Nov  2 18:11:23 UTC 2018
+# add readme.txt to destination folder
+
 # the folder to copy observed data from...
-from_dir="$HOME/data_bk/inversion_test_data/Benchmark_20181101gauss_wmask_f0_nx_D_T4d_8_NSTEP1400"
+from_dir="$HOME/data_bk/inversion_test_data/src_demo/fwdelayedricker_f0500kHz_womask_f0_nx_D_T4d_8_NSTEP1300"
 # the inversion_test folder to hold the data
 to_dir="$HOME/inversion_test/DATA"
 # forcefully remove and recreate the folder 
@@ -30,7 +33,11 @@ for i in `seq 0 $(($NSRC-1))`;do
     eval cp -r $fromfull_sus $tofull
 done
 
-
+#vi $final_dir/zreadme.txt && 
+echo $from_dir > $to_dir/zreadme.txt
+today=`date +%Y-%m-%d.%H:%M:%S` # or whatever pattern you desire
+echo $today >> $to_dir/zreadme.txt
+#eval mv $dfolder $final_foldername
 
 
 

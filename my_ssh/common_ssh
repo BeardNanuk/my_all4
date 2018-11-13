@@ -68,6 +68,19 @@ make -j
 ##SBATCH --gres=gpu:4
 
 
+################# for more than one node 
+(obspy) [jiazeh@tigercpu specfem2d]$ vi DATA/Par_file 
+ 19 # parameters concerning partitioning
+ 20 NPROC                           = 200            # number of esses
+(obspy) [jiazeh@tigercpu specfem2d]$ vi parallelgpu 
+  1 #!/bin/bash
+  2 #SBATCH --nodes=5
+  3 #SBATCH -t 0:41:00
+  4 #SBATCH --ntasks-per-node=40
+  5 ##SBATCH --gres=gpu:4
+
+
+
 
 cd $HOME/specfem2d/
 

@@ -1,0 +1,37 @@
+#!/bin/sh
+
+#echo "copy to Fan0*.mat $HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/obf/input"
+
+#cp $HOME/Desktop/my_files/my_bin/QuickCreate/pptinfo2.odp .
+#cp Fan0*.mat $HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/obf/input
+
+f0=$(sed -n 1,15p DATA/SOURCE | grep 'f0' | cut -d\= -f2 | tr -d '[:space:]')
+D_T=`grep ^DT DATA/Par_file | cut -d = -f 2 | cut -d \# -f 1 | tr -d ' '| sed 's/-/\_/g'`
+intf0=${f0%.*}
+echo 'intf0 ='$intf0
+
+# foldername 
+foldername="csic_syn_gauss_f0${intf0}_DT${D_T}"
+echo 'foldername='$foldername
+# the folder to copy observed data from...
+from_dir="$HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/src_csic"
+
+from_full_dir=$(printf "${from_dir}/${foldername}")
+
+# the inversion_test folder to hold the data
+to_dir="$HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/obf/input"
+
+
+temp_from="$from_full_dir/OUTPUT_FILES/Up_file_single.su"
+echo 'temp_from'$temp_from
+temp_to="${to_dir}/Up_${foldername}.su"
+echo 'temp_to'$temp_to
+eval cp $temp_from $temp_to
+temp_from="$from_full_dir/OUTPUT_FILES/plot_source_time_function.txt"
+temp_to="${to_dir}/stf_${foldername}"
+eval cp $temp_from $temp_to
+
+
+#cp Up_file_single.su /home/jiazeh/Deskto y_files/py2prop/ject/pythonvenv_playground/james_source_inversion/obf/input/Up_tbd_81_96_f05000000.su
+#cp plot_source_time_function.txt /home/jiazeh/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/obf/input/stf_tbd_81_96_f05000000
+
