@@ -9,6 +9,7 @@ import numpy as np
 # for file finding
 import scipy.io as sio
 import glob
+import pandas as pd
 
 ## input environment variable 
 import os
@@ -24,8 +25,10 @@ print('flag_seismotype is ',flag_seismotype )
         
 #flag_seismotype = 4
 flag_exp_data = 2 # 1 for include signal from experiment, 2 for not  
+flag_sp2d_src = 1 # 1 for include signal from experiment, 2 for not  
 
-if flag_seismotype != 4: 
+
+if flag_seismotype not in (4,6):
    Ux_data = data_para.Ux_data
    Uz_data = data_para.Uz_data
    Un_data = data_para.Un_data
@@ -74,17 +77,21 @@ else:
 #plt.show()
 
 
-time_step_star = 1
-time_step_comp = 8000
-t = t_cut[time_step_star:time_step_comp]
+time_step_star = 0
+time_step_comp = 8400 
+t = t_cut[time_step_star:time_step_comp]*1e6
 
 rec_num_comp = 150;
 
 act_to_plot = 1
 
-mat_rec_plot = np.array([150,200,250,300])
+#mat_rec_plot = np.array([150])
+mat_rec_plot = np.array([90,120,150])
+#mat_rec_plot = np.array([150,200,250,300])
+#mat_rec_plot = np.array([150,180,210,240,270,300])
 num_rec = len(mat_rec_plot)
 
+num_rec_plus1 = num_rec + 1
 
 if (flag_exp_data is 1):
    time_diff =Traveltime(Un_data[0:time_step_comp,rec_num_comp],Ue_data[0:time_step_comp,rec_num_comp], time_step_comp, exp_para.dtNew)
@@ -95,8 +102,6 @@ if (flag_exp_data is 1):
    print('the ratio of max of Un/ max of Ue: %f', amp_factor)
 
 fig = plt.figure()
- 
-#fig, axes = plt.figure()
 
 for i in range(num_rec):
 #for ax in range(num_rec):
@@ -109,7 +114,7 @@ for i in range(num_rec):
         titlename = ' source: %d receiver: %d ' % (act_to_plot,col_num)
     #fig, ax = plt.subplot(num_rec, 1, i+1)
     ax = fig.add_subplot(num_rec, 1, i+1)
-    if flag_seismotype != 4:
+    if flag_seismotype not in (4,6):
        ax.plot(t, Ux_data[time_step_star:time_step_comp,col_num], 'b-',label='Ux')
        ax.plot(t, Uz_data[time_step_star:time_step_comp,col_num], 'g-',label='Uz')
     ax.plot(t, Un_data[time_step_star:time_step_comp,col_num], 'm-',label='Un')
@@ -155,17 +160,34 @@ for i in range(num_rec):
     else:
         titlename = 'source: %d receiver: %d ' % (act_to_plot,col_num+1)
     #fig, ax = plt.subplot(num_rec, 1, i+1)
-    ax = fig.add_subplot(num_rec, 1, i+1)
-    if flag_seismotype != 4:
-       ax.plot(t_cut[time_step_star:time_step_comp], Ux_data[time_step_star:time_step_comp,col_num], 'b-',label='Ux')
-       ax.plot(t_cut[time_step_star:time_step_comp], Uz_data[time_step_star:time_step_comp,col_num], 'g-',label='Uz')
-    ax.plot(t_cut[time_step_star:time_step_comp], Un_data[time_step_star:time_step_comp,col_num], 'm-',label='U_')
+    ax = fig.add_subplot(num_rec_plus1, 1, i+1)
+    if flag_seismotype not in (4,6):
+       ax.plot(t, Ux_data[time_step_star:time_step_comp,col_num], 'b-',label='Ux')
+       ax.plot(t, Uz_data[time_step_star:time_step_comp,col_num], 'g-',label='Uz')
+    ax.plot(t, Un_data[time_step_star:time_step_comp,col_num], 'm-',label='U_')
     if (flag_exp_data is 1):
-        ax.plot(t_cut[time_step_star-time_delay:time_step_comp-time_delay], amp_factor*Ue_data[time_step_star:time_step_comp,col_num], 'r-',label='Ue')
+        ax.plot(t, amp_factor*Ue_data[time_step_star:time_step_comp,col_num], 'r-',label='Ue')
     ax.hold(True)
-    fig.tight_layout()         
     ax.set_title(titlename)
     ax.legend()
+
+src_fn ='OUTPUT_FILES/plot_source_time_function.txt'
+src_np = pd.read_csv(src_fn,header=None, delimiter=r"\s+").values
+#src_pd = pd.read_csv(src_fn,header=None,delimiter=' ').values
+#src_pd_Values=(src_pd.values/0.1).transpose()
+#print(src_pd.shape)
+
+ax = fig.add_subplot(num_rec_plus1, 1, num_rec_plus1)
+titlename = ' act %d source used by specfem2d' % (act_to_plot)
+
+#ax.plot(t_cut[time_step_star:time_step_comp], src_pd[time_step_star:time_step_comp,1], 'm-',label='U_')
+ax.plot(src_np[time_step_star:time_step_comp,0]*1e6,src_np[time_step_star:time_step_comp,1], 'm-',label='U_')
+plt.xlabel(r'time ($\mu s$)')
+#ax.xlabel('time')
+ax.hold(True)
+ax.set_title(titlename)
+ax.legend(loc='right')
+fig.tight_layout()         
 
 
 if flag_seismotype == 1:

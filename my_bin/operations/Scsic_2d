@@ -10,8 +10,9 @@ D_T=`grep ^DT DATA/Par_file | cut -d = -f 2 | cut -d \# -f 1 | tr -d ' '| sed 's
 intf0=${f0%.*}
 echo 'intf0 ='$intf0
 
-# foldername 
-foldername="csic_syn_gauss_f0${intf0}_DT${D_T}"
+# foldername
+foldername=$(echo "${PWD##*/}")
+#foldername="csic_f78_90_f0${intf0}_DT${D_T}"
 echo 'foldername='$foldername
 # the folder to copy observed data from...
 from_dir="$HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/src_csic"
@@ -22,9 +23,11 @@ from_full_dir=$(printf "${from_dir}/${foldername}")
 to_dir="$HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/obf/input"
 
 
-temp_from="$from_full_dir/OUTPUT_FILES/Up_file_single.su"
+#temp_from="$from_full_dir/OUTPUT_FILES/Up_file_single.su"
+temp_from="$from_full_dir/obf/input/data_para.pickle"
 echo 'temp_from'$temp_from
-temp_to="${to_dir}/Up_${foldername}.su"
+#temp_to="${to_dir}/Up_${foldername}.su"
+temp_to="${to_dir}/data_para_${foldername}.pickle"
 echo 'temp_to'$temp_to
 eval cp $temp_from $temp_to
 temp_from="$from_full_dir/OUTPUT_FILES/plot_source_time_function.txt"

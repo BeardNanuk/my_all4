@@ -328,6 +328,8 @@ fig.show()
 %reset -f 
 %run -i /home/j2/Desktop/PythonTry/MLshm/python_functions/poly_formal_import
 
+###### commond greeks
+plt.xlabel(r'time ($\mu s$)')
 
 
 ############################################################ MatPlotLib Basics #####
