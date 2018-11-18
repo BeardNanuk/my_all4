@@ -1470,3 +1470,8 @@ ts3 = pd.DataFrame(np.random.randint(10, 100, (4,2)), index=d1, columns=list('ab
 ts3.index = pd.to_datetime(ts3.index)
 
 
+
+######################## common errors ################33
+### when module loading not working, restart kernels in jupyter notebook
+
+

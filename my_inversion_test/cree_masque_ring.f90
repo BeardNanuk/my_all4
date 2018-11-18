@@ -5,9 +5,9 @@ program cree_mask_ring
   ! local parameters
   integer :: i,j,ispec,iproc,nspec,NGLL,NPROC 
   real, dimension (:,:), allocatable :: position_cercle
-  real:: x, z, tol,amax,size_layer,mypi,mf_one_ring
+  real:: x, z, tol,amax,size_layer,mypi,mf_one_ring,Thold
   real:: x_center,y_center,radius_circle,T_space,phy,Dxy,Dxy2,mf_multi_rings
-  LOGICAL :: mf_range1,mf_range2
+  LOGICAL :: mf_range1,mf_range2,mf_range3
   real, dimension(:,:,:), allocatable :: x_store,z_store,vp_store
   character(len=200) :: filename
   nspec=50*50/1
@@ -65,7 +65,7 @@ y_center = 0
 ! array radius
 radius_circle = 0.015
 ! spatial period (window width)
-T_space = 0.006
+T_space = 0.010
 ! to adjust such that at radius = radius_circle, the total phase is 2*pi
 mypi = 3.1415926535
 phy = 2*mypi*(1-radius_circle/T_space)
@@ -80,6 +80,8 @@ print *, 'x_center',x_center
 print *, 'phy', phy
 print *, 'Dxy2', Dxy2 
 
+Thold = 0.5
+
 do ispec=1,nspec
     do j=1,NGLL
       do i=1,NGLL
@@ -89,13 +91,21 @@ do ispec=1,nspec
        mf_multi_rings = 0.5*(1+cos(2*mypi*SQRT((x-x_center)**2 + (z-y_center)**2)/T_space))
        mf_range1 = (SQRT((x-x_center)**2 + (z-y_center)**2) < (Dxy2 + 1E-012)) 
        mf_range2 = (Dxy - 1E-012) < (SQRT((x-x_center)**2 + (z-y_center)**2))  
+       mf_range3 = (radius_circle - 1E-012) < (SQRT((x-x_center)**2 + (z-y_center)**2))  
        !mf_one_ring = mf_multi_rings*mf_range1
        if (mf_range1 .and. mf_range2) then
            mf_one_ring = mf_multi_rings
-           print *, 'x,z,mf_one_ring', x,z, mf_one_ring
        else 
            mf_one_ring = 1.0
        end if
+       if (mf_range3) then 
+           mf_one_ring = 0.0
+           print *, 'x,z,mf_one_ring', x,z, mf_one_ring
+       end if
+       if ( mf_one_ring < Thold ) then
+           mf_one_ring = 0.0
+       end if 
+       
        vp_store(i,j,ispec) = mf_one_ring
        !if ( x< size_layer .or. z < size_layer .or. x > amax - size_layer .or. z > amax - size_layer ) then
        ! vp_store(i,j,ispec) = 0.0

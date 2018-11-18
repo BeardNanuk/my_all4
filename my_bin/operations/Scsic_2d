@@ -5,6 +5,9 @@
 #cp $HOME/Desktop/my_files/my_bin/QuickCreate/pptinfo2.odp .
 #cp Fan0*.mat $HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/obf/input
 
+flag_Uaxis_number=$1 # 1 for pressure and chi 2 for disp, velc, accel 
+echo 'number of axis in the seismogram', $flag_Uaxis_number 
+
 f0=$(sed -n 1,15p DATA/SOURCE | grep 'f0' | cut -d\= -f2 | tr -d '[:space:]')
 D_T=`grep ^DT DATA/Par_file | cut -d = -f 2 | cut -d \# -f 1 | tr -d ' '| sed 's/-/\_/g'`
 intf0=${f0%.*}
@@ -22,14 +25,19 @@ from_full_dir=$(printf "${from_dir}/${foldername}")
 # the inversion_test folder to hold the data
 to_dir="$HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/obf/input"
 
-
-#temp_from="$from_full_dir/OUTPUT_FILES/Up_file_single.su"
+if [ $flag_Uaxis_number -eq 1 ]
+then 
+temp_from="$from_full_dir/OUTPUT_FILES/Up_file_single.su"
+temp_to="${to_dir}/Up_${foldername}.su"
+else
 temp_from="$from_full_dir/obf/input/data_para.pickle"
-echo 'temp_from'$temp_from
-#temp_to="${to_dir}/Up_${foldername}.su"
 temp_to="${to_dir}/data_para_${foldername}.pickle"
+fi
+
+echo 'temp_from'$temp_from
 echo 'temp_to'$temp_to
 eval cp $temp_from $temp_to
+
 temp_from="$from_full_dir/OUTPUT_FILES/plot_source_time_function.txt"
 temp_to="${to_dir}/stf_${foldername}"
 eval cp $temp_from $temp_to

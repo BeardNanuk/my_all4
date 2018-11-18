@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+#import os
+#print("The python script has been invoked successfully")
+#print(os.environ['flag_seismotype'])
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+stf_load = np.loadtxt("OUTPUT_FILES/plot_source_time_function.txt")
+print('stf_load shape',stf_load.shape)
+
+plt.plot(stf_load[:,0],stf_load[:,1])
+plt.show()
+
