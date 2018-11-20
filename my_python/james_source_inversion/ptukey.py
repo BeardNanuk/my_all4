@@ -51,4 +51,6 @@ plt.plot(xf_Newobs[freq_step_starNewsyn-1:freq_step_endNewsyn-1]/1e3,freq_pos[fr
 plt.title('Tukey Window Taper Applied')
 plt.xlabel('Frequency (kHz)')
 plt.ylabel('Gain')
+plt.savefig(save_tukey_fn,format='png', dpi=200, bbox_inches='tight')
 plt.show()
+add_slide_ze(save_tukey_fn,total_filename_pptx)

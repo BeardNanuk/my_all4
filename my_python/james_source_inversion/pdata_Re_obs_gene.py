@@ -16,4 +16,5 @@ for trace_num in range(0,176,1):
 
 ##print('shape of data_Re_obs',data_Re_obs.shape)
 
-pickle.dump(data_Re_obs,open('obf/input/data_Re_obs.pickle','wb'))
+#pickle.dump(data_Re_obs,open('obf/input/data_Re_obs.pickle','wb'))
+pickle.dump(data_Re_obs,open(save_Re_obs_pickledump_fn,'wb'))

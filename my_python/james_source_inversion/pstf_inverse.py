@@ -14,6 +14,7 @@ from scipy import interpolate
 yf_stf_inverted_stack = np.zeros(1, dtype=np.complex)
 for trace_num in range(inv_trace_num_star,inv_trace_num_end,1):
     execfile('ptraceprepare.py')
+    print('trace_num is ', trace_num)
     # Now we change into the frequency domain
 
     yf_NewNormobs = yf_Newobs/(max(yf_Newobs))
