@@ -600,6 +600,14 @@ Note that the ">" needs to be escaped within a [ ] construct.
 
 See Example 27-11 for an application of this comparison operator.
 
+##### passing variables between bash script
+(obspy) jiazeh@farm:~/inversion_test$ vi zbash_try 
+ 24 ############## parameter grebbing ################
+ 25 . ./zpara_headers
+### where zpara_headers and zbash_try are chmod u+x those files
+
+
+
 ## math operations in bash
 
 #subtraction: 

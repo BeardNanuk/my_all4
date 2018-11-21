@@ -1,6 +1,12 @@
 
 # ze plot functions
 # create on Fri Sep 21 20:57:01 UTC 2018
+# created by Jiaze He 
+
+# revised on Tue Nov 20 16:44:27 UTC 2018
+# add one_signal_plot
+
+import numpy as np
 
 import argparse, os, sys
 import matplotlib.pyplot as plt
@@ -139,6 +145,29 @@ def plot_section_ze(data, y_step_star = None,y_step_end = None, ax=None, cmap='s
     ax.set_title(title)
     ax.set_xlabel('Receiver number')
     ax.set_ylabel('Time steps')
+
+def one_signal_plot(x1,y1,figtitle = None, x_label = None, y_label=None):
+    if (figtitle is None):
+	figtitle = 'a signal'
+    if (x_label is None):
+        x_label = str(r'time ($\mu s$)') 
+    if (y_label is None):
+        y_label = ' '
+ 
+    plt.title(figtitle) 
+    plt.plot(x1,y1)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.show()
+
+def txt_signal_load(txtfile=None):
+    if (txtfile is None):
+	txtfile="OUTPUT_FILES/plot_source_time_function.txt"
+    print('load a signal')
+    stf_load = np.loadtxt(txtfile)
+    return stf_load
+    #one_signal_plot(stf_load[:,0],stf_load[:,1])
+    
 
 
 

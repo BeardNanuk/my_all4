@@ -3,7 +3,7 @@ program cree_mask_ring
   implicit none
 
   ! local parameters
-  integer :: i,j,ispec,iproc,nspec,NGLL,NPROC 
+  integer :: i,j,ispec,iproc,nspec,NGLL,NPROC,filesize 
   real, dimension (:,:), allocatable :: position_cercle
   real:: x, z, tol,amax,size_layer,mypi,mf_one_ring,Thold
   real:: x_center,y_center,radius_circle,T_space,phy,Dxy,Dxy2,mf_multi_rings
@@ -15,15 +15,25 @@ program cree_mask_ring
   amax=0.04
   size_layer = tol*amax
   NGLL=5
-  NPROC=1
-  ! On remplit ce tableau avec x,z
+  NPROC=2
+
+
+  do iproc=1,NPROC
+  !open a file to estimate the filesize
+  write(filename,'(a,i6.6,a)') './model_init/proc',iproc-1,'_x.bin'
+  open(unit=13,file=filename,status='old',form='unformatted')
+  inquire(13,size=filesize) 
+  close(13)
+  !there are 8 bits of size is not due to SEMs, the size of element is 4
+  !(floatsize*NGLL*NGLL)
+  nspec = (filesize-8)/(4*NGLL*NGLL)
+  print *,'nspec:',nspec  
+
+ ! On remplit ce tableau avec x,z
   allocate(x_store(NGLL,NGLL,nspec))
   allocate(z_store(NGLL,NGLL,nspec))
   allocate(vp_store(NGLL,NGLL,nspec))
 
-
-  do iproc=1,NPROC
- 
   write(filename,'(a,i6.6,a)') './mask/proc',iproc-1,'_x.bin'
   open(unit=13,file=filename,status='old',form='unformatted')
   write(filename,'(a,i6.6,a)') './mask/proc',iproc-1,'_z.bin'
@@ -127,6 +137,8 @@ do ispec=1,nspec
 
   write(154) vp_store
   close(154)
+
+  deallocate(x_store,z_store,vp_store)
 
   enddo
 
