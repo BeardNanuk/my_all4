@@ -5,11 +5,11 @@
 #created on Thu Nov  1 18:31:56 UTC 2018 
 #created by Jiaze HE  
 
-. ./zpara_headers
+. zpara_headers
 
 
 #!!!!!!!!!!!! be really careful about the destination 
-final_dir="$HOME/Desktop/d/fwi_csic"
+final_dir="$HOME/Desktop/d/elastic_trial"
 
 final_foldername=$(printf "${final_dir}/${foldername}")
 #final_foldername=$(printf "${final_dir}/f0_${intf0}")

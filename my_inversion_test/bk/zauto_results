@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-###! /usr/bin/python
+## (obspy) jiazeh@farm:~/inversion_test$ vi zauto_results 
+## automated results generation in PPT slides
 
 ## created by Jiaze He, ad textplot 
 #Fri Sep  7 14:59:33 UTC 2018 
 
-## revised 
+## revised on Sun Nov  4 10:13:31 EST 2018 
+## vp/vs results recreation - vs and x/z included 
 
 
 import argparse, os, sys 
@@ -129,7 +131,7 @@ if __name__ == "__main__":
     print 'hey'
     print PAR.NT 
     save_parafile='output/paraplot'
-    #textplot(PAR, save_parafile)
+    textplot(PAR, save_parafile)
     #add_slide_ze(save_parafile,para.total_filename_pptx)
     ## the relative path and filename to save the results in pptx 
     total_filename_pptx='output/zauto_results.pptx'
@@ -146,16 +148,23 @@ if __name__ == "__main__":
     prs.save(total_filename_pptx)
     add_slide_ze(save_parafile,total_filename_pptx)
 
-    vp_matrix = [1,10]
+    #vp_matrix = [1,2,200]
+    vp_matrix = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,30,40,50,60,70,80,90,100,120,140,160,180,200]
     for i in vp_matrix:
 	vp_filename='output/vp%04d.png' % i 
         print vp_filename
         add_slide_ze(vp_filename,total_filename_pptx)
+    #vp_matrix = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,30,40,50,60,70]
+    vs_matrix = vp_matrix
+    for i in vs_matrix:
+        vs_filename='output/vs%04d.png' % i 
+        print vs_filename
+        add_slide_ze(vs_filename,total_filename_pptx)
 
     # max filename only    
     os.chdir('output')
     print(os.getcwd())
-    maxfile=max(glob.glob("vp*.png"))
+    maxfile=max(glob.glob("v*.png"))
     # maxfile with relative path
     maxfilepath='output/'+maxfile
     
@@ -165,22 +174,45 @@ if __name__ == "__main__":
     add_slide_ze(maxfilepath,total_filename_pptx)
 
     seismo_matrix = [0]
+
+
+#    for i in seismo_matrix:
+#      	seismo_filename='output/traces/obs_event_%06d.png' % i 
+#        print seismo_filename
+#        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
+#        
+#        seismo_filename='output/traces/syn_event_%06d.png' % i 
+#        print seismo_filename
+#        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
+#
+#        seismo_filename='output/traces/last_adj_event_%06d.png' % i 
+#        print seismo_filename
+#        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
+    prop = 'disp'
     for i in seismo_matrix:
-	seismo_filename='output/traces/obs_event_%06d.png' % i 
-        print seismo_filename
-        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
-        
-        seismo_filename='output/traces/syn_event_%06d.png' % i 
-        print seismo_filename
-        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
+	#seismo_filename='output/traces/obs_event_%06d.png' % i 
 
-        seismo_filename='output/traces/last_adj_event_%06d.png' % i 
+        seismo_filename="./output/traces/obs_%s_x_event_%06d.png" % (prop,i)
+        print seismo_filename
+        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
+        seismo_filename="./output/traces/obs_%s_z_event_%06d.png" % (prop,i)
         print seismo_filename
         add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
 
+        seismo_filename="./output/traces/syn_%s_x_event_%06d.png" % (prop,i)
+        print seismo_filename
+        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
+        seismo_filename="./output/traces/syn_%s_z_event_%06d.png" % (prop,i)
+        print seismo_filename
+        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
 
+        seismo_filename="./output/traces/last_adj_%s_x_event_%06d.png" % (prop,i)
+        print seismo_filename
+        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
+        seismo_filename="./output/traces/last_adj_%s_z_event_%06d.png" % (prop,i)
+        print seismo_filename
+        add_slide_ze(seismo_filename,total_filename_pptx,left_start=2, top_start=0.1, width=4,height=6)
 
-   
 
     #print maxfile
 

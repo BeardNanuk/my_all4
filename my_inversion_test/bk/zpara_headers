@@ -11,9 +11,7 @@
 # should also be small enough to make the computers memory not blow up
 jobs_perchuck=10
 
-#read choice
-
-f0=$(sed -n 1,15p specfem_data/SOURCE_000000 | grep 'f0' | cut -d\= -f2 | tr -d '[:space:]')
+f0=$(sed -n 1,15p specfem_data/SOURCE | grep 'f0' | cut -d\= -f2 | tr -d '[:space:]')
 
 intf0=${f0%.*}
 echo 'intf0 ='$intf0
@@ -39,7 +37,7 @@ echo 'Nit = '$Nit
 # it works only with the number total jobs in each iteration (10) larger than the total core numbers (8)
 # but also will have enough memory for the computer to "SAVE" for undone jobs (due to '&')
         Nloop=$(($Nit/$jobs_perchuck+1))
-        echo 'Nloop', $Nloop
+
 # get the lines to search for, then search the word "NSTEP", output the number after the '='
         NSTEP=$(sed -n 26,28p specfem_data/Par_file | grep 'NSTEP' | cut -d\= -f2 | tr -d '[:space:]')
 
@@ -47,6 +45,7 @@ echo 'Nit = '$Nit
         AC_or_El=`grep ^MATERIALS   ./parameters.py | cut -d = -f 2 | sed 's/ //g'| tr -d \'`
         Density=`grep ^DENSITY   ./parameters.py | cut -d = -f 2 | sed 's/ //g' | tr -d \'`
         Nevent=$(sed -n 17,19p ./parameters.py | grep 'NSRC' | cut -d\= -f2 | sed 's/\#.*//')
+
         echo  -e "\033[32m\033[1mSimulation : $AC_or_El\033[0m"
         echo  -e "\033[32m\033[1mDensity : $Density\033[0m"
         echo  -e "\033[32m\033[1mNumber of iterations: $Nit\033[0m"
@@ -55,8 +54,7 @@ echo 'Nit = '$Nit
 
 ############## parameter grebbing ################
 
-        #AC_or_El='Elastic'
-        echo 'AC_or_El:', $AC_or_El
+
 
         str='Elastic'
         Nevent=$(($Nevent-1)) # make loop easy
@@ -67,17 +65,14 @@ echo 'Nit = '$Nit
         Clip_percent=90
 
 ## see if png files exist
-count=`ls -1 ./output/*.png 2>/dev/null | wc -l`
-echo 'count =' $count
+        count=`ls -1 ./output/*.png 2>/dev/null | wc -l`
 
-# 1 for acoustic, non-zero for 2 properties. 
-flag_elastic=1
 
 ############# Plot the models ################
 # should be larger than the number of cores (to make the most use of the computer)
 # should also be small enough to make the computers memory not blow up
 
-foldername="20181118int_4src_8proc_piter70f0$intf0"
+foldername="20181104elastic_xf0$intf0"
 
 
 

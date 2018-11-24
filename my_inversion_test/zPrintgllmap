@@ -1,6 +1,13 @@
 #!/bin/sh
 ''''exec python -W ignore -- "$0" "$@" # '''
 
+# created on Sat Nov 24 17:43:30 EST 2018 
+# created by Jiaze, based on EB's code 
+
+# revised on Sat Nov 24 17:43:30 EST 2018
+# add subsampling option
+
+
 import os
 import sys
 import numpy as np
@@ -66,13 +73,17 @@ if __name__ == '__main__':
     """
 
     nproc=8 
-    dirname = sys.argv[1]
-    par = sys.argv[2]
+    xz_dirname = sys.argv[1]
+    dirname = sys.argv[2]
+    K = sys.argv[3]
+    #x = sys.argv[4]
+    #y = sys.argv[5]
+    par = sys.argv[4]
     #get coordinate vector
     x=np.array([])
     z=np.array([])
     for i in range(nproc):
-      x_temp, z_temp = getcoords(dirname,i)
+      x_temp, z_temp = getcoords(xz_dirname,i)
       x=np.append(x,x_temp)
       z=np.append(z,z_temp)
 
@@ -86,23 +97,22 @@ if __name__ == '__main__':
     maxval = max(v)
     maxabs = max(abs(v))
     w=v
-#    w = v
     undersamp_fact = 25
     w_undersamp = w[::undersamp_fact]
     #w_undersamp = w
     x_undersamp = x[::undersamp_fact]
     #x_undersamp = x
     z_undersamp = z[::undersamp_fact]
-    #z_undersamp = z
 
 #    if par =='vs':
 #      w=np.clip(v, 4273.232910, 4780.356445)
 #    if par =='Qkappa':
 #      w=np.clip(v,0.006667, 0.012500)
 #       w=np.clip(v,0.001667, 0.003333)
-    temp='echelle ='
-    print temp, maxval-minval
-    print msg % (filename, minval, maxval)
+    #temp='echelle ='
+    print maxval-minval
+    print msg % (minval, maxval)
+    #f, p = meshplot(x, z, w) 
     f, p = meshplot(x_undersamp, z_undersamp, w_undersamp) 
     plt.xticks( color = 'k', size = 18)
     plt.yticks( color = 'k', size = 18)
@@ -113,5 +123,6 @@ if __name__ == '__main__':
     #plt.show()
     figure = plt.gcf() # get current figure
     figure.set_size_inches(10, 6)
-    pylab.title(par,size=30)
-    plt.savefig(par +'.png')
+    pylab.title(par + ' iter num' +K, size=26)
+    #pylab.title(par,size=30)
+    plt.savefig( 'output/' + par + '_' + K +'.png')

@@ -6,20 +6,17 @@
 #created on Mon Oct  8 14:06:55 UTC 2018
 #created by Jiazeh 
 
-# revised on Sat Nov 24 16:29:58 EST 2018
-# add copying interfaces.dat as well
-
 f0=$(sed -n 1,15p DATA/SOURCE | grep 'f0' | cut -d\= -f2 | tr -d '[:space:]')
 D_T=`grep ^DT DATA/Par_file | cut -d = -f 2 | cut -d \# -f 1 | tr -d ' '| sed 's/-/\_/g'`
 intf0=${f0%.*}
 echo 'intf0 ='$intf0
 
 # foldername 
-foldername="sp_sm_half_circle_parfile_f0${intf0}_DT${D_T}"
+foldername="csic_gauss_rvelc_f0${intf0}_DT${D_T}"
 echo 'foldername='$foldername
 
 #!!!!!!!!!!!! be really careful about the destination 
-final_dir="/scratch/gpfs/jiazeh/Desktop/d/fwi_csic"
+final_dir="/scratch/gpfs/jiazeh/Desktop/d/csic"
 #final_dir="$HOME/Desktop/my_files/py2project/pythonvenv_playground/james_source_inversion/src_demo"
 
 final_foldername=$(printf "${final_dir}/${foldername}")
@@ -43,7 +40,7 @@ cp z* bk_small
 dfolder='bk_small'
 
 temp_full="$dfolder/DATA"
-mkdir -p $temp_full && eval cp -r DATA/Par_file DATA/SOURCE DATA/STATIONS DATA/interfaces.dat $temp_full
+mkdir -p $temp_full && eval cp -r DATA/Par_file DATA/SOURCE DATA/STATIONS $temp_full
 temp_full="$dfolder/OUTPUT_FILES"
 mkdir -p $temp_full && eval cp -r OUTPUT_FILES/* $temp_full
 temp_full="$dfolder/obf/output"

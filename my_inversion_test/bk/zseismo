@@ -2,8 +2,6 @@
 
 #i greb the total iteration number in the misfit file 
 Nit=`wc -l ./output.stats/misfit | cut -f1 -d' '`
-# break the total iterations in the small chucks. Ei greb the total iteration number in the misfit file 
-Nit=`wc -l ./output.stats/misfit | cut -f1 -d' '`
 # break the total iterations in the small chucks. Each chuck will be excuted in parallel with all
 # the process a computer have; the trick is to include & for continue excution without waitiing;
 # it works only with the number total jobs in each iteration (10) larger than the total core numbers (8)
@@ -13,16 +11,16 @@ Nloop=$(($Nit/$jobs_perchuck+1))
 # get the lines to search for, then search the word "NSTEP", output the number after the '='
 NSTEP=$(sed -n 26,28p specfem_data/Par_file | grep 'NSTEP' | cut -d\= -f2)
 
-ach chuck will be excuted in parallel with all
+#ach chuck will be excuted in parallel with all
 # the process a computer have; the trick is to include & for continue excution without waitiing;
 # it works only with the number total jobs in each iteration (10) larger than the total core numbers (8)
 # but also will have enough memory for the computer to "SAVE" for undone jobs (due to '&')
-Nloop=$(($Nit/$jobs_perchuck+1))
+#Nloop=$(($Nit/$jobs_perchuck+1))
 
 # get the lines to search for, then search the word "NSTEP", output the number after the '='
-	NSTEP=$(sed -n 26,28p specfem_data/Par_file | grep 'NSTEP' | cut -d\= -f2)
+#	NSTEP=$(sed -n 26,28p specfem_data/Par_file | grep 'NSTEP' | cut -d\= -f2)
 
-	i.e., 3 jobs each loop, then total jobs perchuck is 3*jobs_perchuck = 30; this number
+#	i.e., 3 jobs each loop, then total jobs perchuck is 3*jobs_perchuck = 30; this number
 # should be larger than the number of cores (to make the most use of the computer)
 # should also be small enough to make the computers memory not blow up
 	jobs_perchuck=10
@@ -30,15 +28,15 @@ Nloop=$(($Nit/$jobs_perchuck+1))
 
 
 # greb the total iteration number in the misfit file 
-	Nit=`wc -l ./output.stats/misfit | cut -f1 -d' '`
+#	Nit=`wc -l ./output.stats/misfit | cut -f1 -d' '`
 # break the total iterations in the small chucks. Each chuck will be excuted in parallel with all
 # the process a computer have; the trick is to include & for continue excution without waitiing;
 # it works only with the number total jobs in each iteration (10) larger than the total core numbers (8)
 # but also will have enough memory for the computer to "SAVE" for undone jobs (due to '&')
-Nloop=$(($Nit/$jobs_perchuck+1))
+#Nloop=$(($Nit/$jobs_perchuck+1))
 
 # get the lines to search for, then search the word "NSTEP", output the number after the '='
-NSTEP=$(sed -n 26,28p specfem_data/Par_file | grep 'NSTEP' | cut -d\= -f2)
+#NSTEP=$(sed -n 26,28p specfem_data/Par_file | grep 'NSTEP' | cut -d\= -f2)
 
 echo 'number of time steps is '$NSTEP 
 

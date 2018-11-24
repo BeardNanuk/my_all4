@@ -1,6 +1,13 @@
 #!/bin/bash
 ''''exec python -W ignore -- "$0" "$@" # '''
-# Thu Jun 21 13:35:52 UTC 2018
+
+##(obspy) jiazeh@farm:~/inversion_test$ vi zplotbin
+## plot seismogram
+
+## maintained by Jiaze He
+
+## revised on Sun Nov  4 10:13:31 EST 2018
+## subsample commented out 
 
 import os
 import sys
@@ -11,9 +18,6 @@ from glob import glob
 from os.path import abspath, join
 from seisflows.plugins.solver_io.fortran_binary import _read
 from seisflows.tools.tools import exists
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.colors import BoundaryNorm
-from matplotlib.ticker import MaxNLocator
 
 
 def getcoords(dir):
@@ -26,21 +30,15 @@ def getcoords(dir):
         sys.exit()
 
 
-def meshplot(x, y, z, zmin=None, zmax=None):
+def meshplot(x, y, z):
     """ Plots values on 2D unstructured mesh
     """
     r = (max(x) - min(x))/(max(y) - min(y))
     rx = r/np.sqrt(1 + r**2)
     ry = 1/np.sqrt(1 + r**2)
-    if zmin is None:
-	zmin = z.min()
-    if zmax is None: 
-	zmax = z.max()    
-    levels = MaxNLocator(nbins=15).tick_values(zmin, zmax)
- 
+
     f = plt.figure(figsize=(10*rx, 10*ry))
-#    p = plt.tricontourf(x, y, z, 125)
-    p = plt.tricontourf(x, y, z, 125, levels=levels)
+    p = plt.tricontourf(x, y, z, 125)
     plt.axis('image')
     return f, p
 
@@ -71,8 +69,8 @@ filenames.sort()
 
 print 'num of iteration: %d' % int(iter) 
 print 'name of the current dir: %s' % dirname
-print dirname
-print(filenames2)
+#print dirname
+#print(filenames2)
 #print(filenames_inside) 
 #print(filenames_temp)
 print 'name of the current bin fileanme : %s' % filenames
@@ -97,14 +95,17 @@ for i, filename in enumerate(filenames):
 	#w = v[1:-1]
 	w = v
         #w_undersamp = w[::25]
+        w_undersamp = w
         #x_undersamp = x[::25]
+        x_undersamp = x
         #z_undersamp = z[::25]
+        z_undersamp = z
 	#print w
 	#print type(w)
 	print 'shape of w', w.shape 
-        #print 'shape of w undersampled :', w_undersamp.shape 
+        print 'shape of w undersampled :', w_undersamp.shape 
+	f, p = meshplot(x, z, w)
 	#f, p = meshplot(x_undersamp, z_undersamp, w_undersamp)
-	f, p = meshplot(x, z, w, zmin=1470, zmax=1560)
 
 	plt.xticks( color = 'k', size = 18)
         plt.yticks( color = 'k', size = 18)
@@ -113,9 +114,7 @@ for i, filename in enumerate(filenames):
         cbar.ax.tick_params(labelsize=18)
         #plt.show()
         figure = plt.gcf() # get current figure
-        #ax = plt.gca()
         figure.set_size_inches(10, 6)
-        #cbar.set_clim(1480, 1550)
         pylab.title(par + ' iter num %d' % int(iter),size=26)
         #pylab.title('iter num %d' % int(iter),size=30)
         plt.savefig('./output/'+ par + K + '.png')	
